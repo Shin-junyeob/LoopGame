@@ -2,15 +2,22 @@ import LoopCore
 import SwiftUI
 
 /// US-303 loop station: record loops over a 1-bar count-in and stack up to 8 of them in a Song (AC5, AC6, AC12).
+/// US-305: every change is saved to `songStore`; "곡 완성하기" opens the arrangement.
 struct LoopStationView: View {
     let host: AudioHost
-    @State private var song = LoopStationView.initialSong
+    @State private var song: Song
     @State private var muted: Set<UUID> = []
     @State private var role = SongRole.drums
     @State private var timbres = Timbres.ids.mapValues { $0[0] }
     @State private var bars = 2
     @State private var compare: Compare?
+    @State private var arranging = false
     @Environment(\.horizontalSizeClass) private var sizeClass
+
+    init(host: AudioHost, song: Song? = nil) {
+        self.host = host
+        _song = State(initialValue: song ?? Self.initialSong)
+    }
 
     private var recording: Bool { host.take != nil }
     private var full: Bool { song.tracks.count >= Song.maxTracks }
@@ -25,17 +32,30 @@ struct LoopStationView: View {
         .padding()
         .background(stage)
         .navigationTitle("루프 스테이션")
+        .toolbar {
+            Button("곡 완성하기") { arranging = true }
+                .disabled(song.tracks.isEmpty || recording)
+        }
+        .navigationDestination(isPresented: $arranging) { ArrangeView(host: host, song: $song) }
         .onAppear {
             apply()
             play()
             #if DEBUG
             if UserDefaults.standard.bool(forKey: "demoCompare") { startCompare(Self.demoTake) }
+            if UserDefaults.standard.bool(forKey: "demoArrange") { arranging = true }
             #endif
         }
         .onChange(of: role, apply)
         .onChange(of: timbres, apply)
-        .onChange(of: song.bpm, apply)
-        .onChange(of: song.tracks, play)
+        .onChange(of: song.bpm) {
+            song.sections = []  // the Arranger's length depends on tempo; re-arrange on the next visit
+            apply()
+        }
+        .onChange(of: song.tracks) {
+            song.sections = []
+            play()
+        }
+        .onChange(of: song, save)
         .onChange(of: muted, play)
         .onChange(of: host.finishedTake) { _, take in
             guard let take, !full else { return }
@@ -61,6 +81,18 @@ struct LoopStationView: View {
 
     private func play() {
         host.setSongTracks(song.tracks.filter { !muted.contains($0.id) })
+    }
+
+    /// AC18 auto-save, once the song has a track. Naming it re-triggers this through `onChange(of: song)`.
+    private func save() {
+        guard !song.tracks.isEmpty else { return }
+        guard !song.name.isEmpty else {
+            song.name = "곡 " + Date.now.formatted(.dateTime.month().day().hour().minute().locale(Locale(identifier: "ko_KR")))
+            return
+        }
+        var s = song
+        s.modifiedAt = .now
+        do { try songStore.save(s) } catch { print("song save failed: \(error)") }
     }
 
     /// AC10: the Corrector runs off main; the sheet shows the take (auditioning) with a progress row meanwhile.

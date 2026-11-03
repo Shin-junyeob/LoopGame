@@ -14,6 +14,8 @@ public struct RenderState {
     public static let maxTracks = 8
     public let sampleRate: Int64
     public let bpm: Int64
+    /// Absolute tick where every track's loop 0 starts; nothing plays before it (arrangement "play from the start").
+    public let originTick: Int64
     public let tracks: UnsafeMutableBufferPointer<Track>
     /// One-shot samples for live hits (pad index = position).
     public let pads: UnsafeMutableBufferPointer<UnsafeMutableBufferPointer<Float>>
@@ -30,13 +32,14 @@ public struct RenderState {
 
     public init(sampleRate: Int64, bpm: Int64,
                 songTracks specs: [(sounds: [[Float]], events: [Int64], eventSounds: [Int], bars: Int64, gain: Float)],
-                pads padSamples: [[Float]] = []) {
+                pads padSamples: [[Float]] = [], originTick: Int64 = 0) {
         precondition(specs.count <= Self.maxTracks)
         self.sampleRate = sampleRate
         self.bpm = bpm
+        self.originTick = originTick
         tracks = .allocate(capacity: specs.count)
         for (i, spec) in specs.enumerated() {
-            precondition([1, 2, 4, 8].contains(spec.bars))
+            precondition(spec.bars > 0)  // loops are 1/2/4/8 bars; a flattened arrangement is one long loop
             let loopTicks = spec.bars * 4 * ppq
             precondition(spec.events == spec.events.sorted() && spec.events.allSatisfy { $0 >= 0 && $0 < loopTicks })
             precondition(spec.eventSounds.count == spec.events.count && spec.eventSounds.allSatisfy(spec.sounds.indices.contains))
@@ -174,12 +177,13 @@ public struct Renderer {
     // sample ownership if edits must not click.
     private func seek(_ state: RenderState) {
         for i in 0..<Self.voiceCount { voices[i] = Voice() }
-        let tickNow = Clock.floorDiv(position * state.bpm * ppq, state.sampleRate * 60)
+        let tickNow = Clock.floorDiv(position * state.bpm * ppq, state.sampleRate * 60) - state.originTick
         for t in 0..<state.tracks.count {
             let track = state.tracks[t]
-            cursors[t] = Cursor(loop: tickNow / track.loopTicks)
+            cursors[t] = Cursor(loop: max(0, Clock.floorDiv(tickNow, track.loopTicks)))
             guard track.events.count > 0 else { continue }
-            cursors[t].next = Clock.frame(tick: cursors[t].loop * track.loopTicks + track.events[0], sampleRate: state.sampleRate, bpm: state.bpm)
+            cursors[t].next = Clock.frame(tick: state.originTick + cursors[t].loop * track.loopTicks + track.events[0],
+                                          sampleRate: state.sampleRate, bpm: state.bpm)
             while cursors[t].next < position { advance(t, state) }
         }
     }
@@ -191,7 +195,7 @@ public struct Renderer {
             cursors[t].index = 0
             cursors[t].loop += 1
         }
-        let tick = cursors[t].loop * track.loopTicks + track.events[cursors[t].index]
+        let tick = state.originTick + cursors[t].loop * track.loopTicks + track.events[cursors[t].index]
         cursors[t].next = Clock.frame(tick: tick, sampleRate: state.sampleRate, bpm: state.bpm)
     }
 

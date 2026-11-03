@@ -61,6 +61,8 @@ final class AudioHost {
     @ObservationIgnored private var pads: [[Float]] = []
     @ObservationIgnored private var bank: [String: [[Float]]] = [:]  // "role/timbre" -> SampleBank buffers at sampleRate
     @ObservationIgnored private var songTracks: [LoopTrack] = []
+    /// Arrangement being played (flattened, one loop per track) and the tick it started at; replaces `songTracks`.
+    @ObservationIgnored private var arrangement: (tracks: [LoopTrack], origin: Int64)?
     @ObservationIgnored private var timebase = mach_timebase_info_data_t()
     @ObservationIgnored private var clicks: [[Float]] = []
     @ObservationIgnored private var nextHitID: UInt64 = 0
@@ -169,11 +171,12 @@ final class AudioHost {
     }
 
     private func swapState() {
-        var tracks = cpuRunning ? Self.eightTracks(pads) : songTracks.map(spec)
+        var tracks = cpuRunning ? Self.eightTracks(pads) : (arrangement?.tracks ?? songTracks).map(spec)
         if !cpuRunning && (metronome || take != nil) && tracks.count < RenderState.maxTracks {
             tracks.append(([clicks[0], clicks[1]], [0, ppq, 2 * ppq, 3 * ppq], [0, 1, 1, 1], 1, 0.4))
         }
-        let state = RenderState(sampleRate: Int64(sampleRate), bpm: Int64(bpm), songTracks: tracks, pads: pads)
+        let state = RenderState(sampleRate: Int64(sampleRate), bpm: Int64(bpm), songTracks: tracks, pads: pads,
+                                originTick: cpuRunning ? 0 : arrangement?.origin ?? 0)
         swap.swap(to: state.boxed(), engineRunning: engine.isRunning)
     }
 
@@ -202,9 +205,45 @@ final class AudioHost {
 
     /// Tracks the loop station plays (already filtered for mute); `[]` when leaving it.
     func setSongTracks(_ tracks: [LoopTrack]) {
-        guard tracks != songTracks else { return }
+        guard tracks != songTracks || arrangement != nil else { return }
         songTracks = tracks
+        arrangement = nil
         swapState()
+    }
+
+    /// Plays `song.sections` once through and then repeats; each track sounds only in sections that have it on.
+    /// `restart` starts from the intro now, otherwise edits keep the current place. nil stops.
+    func setArrangement(_ song: Song?, restart: Bool) {
+        guard let song, !song.sections.isEmpty else {
+            guard arrangement != nil else { return }
+            arrangement = nil
+            return swapState()
+        }
+        var origin = arrangement?.origin ?? 0
+        if restart || arrangement == nil, let clock = hostClock() {
+            origin = clock.tick(hostTime: mach_absolute_time(), latency: 0, bpm: Int64(song.bpm)) + ppq / 4
+        }
+        songTracks = []
+        arrangement = (Arranger.flatten(song), origin)
+        bpm = song.bpm
+        swapState()
+    }
+
+    /// AC19: offline render of the arrangement with the same Renderer, written as m4a (AAC) and wav in tmp.
+    func export(_ song: Song) async throws -> [URL] {
+        let specs = Arranger.flatten(song).map(spec)
+        let rate = Int64(sampleRate), bpm = Int64(song.bpm)
+        let frames = Int(Arranger.totalFrames(song.sections, sampleRate: rate, bpm: song.bpm))
+        let name = song.name.isEmpty ? "loop" : song.name.replacingOccurrences(of: "/", with: "-")
+        let base = FileManager.default.temporaryDirectory.appendingPathComponent(name)
+        return try await Task.detached(priority: .userInitiated) {
+            let samples = Exporter.render(sampleRate: rate, bpm: bpm, songTracks: specs, frameCount: frames)
+            return try ["m4a", "wav"].map { ext in
+                let url = base.appendingPathExtension(ext)
+                try Exporter.write(samples, sampleRate: Double(rate), to: url)
+                return url
+            }
+        }.value
     }
 
     func setInstrument(role: SongRole, timbre: String) {

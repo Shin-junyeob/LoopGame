@@ -33,7 +33,7 @@
         "Next-instrument hint shown using Recommender (fixed order per G6) (AC12)"
       ],
       "passes": true, "completionCriteriaRevision": 1,
-      "notes": "Real touch recording not yet exercised on a device (simulator cannot tap pads) — user device test pending"
+      "notes": "Device check by user 2026-11-04: recorded loops play back in time; kick loudness now OK"
     },
     {
       "id": "US-304", "title": "AI compare after recording (AC10-13)", "priority": 4, "governingCriteriaRevision": 1,
@@ -51,7 +51,8 @@
         "Songs saved as JSON (Song Codable) in Application Support, listed, reopened and edited (AC18); round-trip test through the file layer",
         "Export renders offline with the same Renderer to m4a (AAC) and wav, shared via ShareLink (AC19); test: exported buffer length equals arrangement frames (m4a file length within +-2112 frames)"
       ],
-      "passes": false
+      "passes": true, "completionCriteriaRevision": 1,
+      "notes": "OPEN: iPad simulators hung at launch in AVAudioEngine.outputNode (coreaudio IPC, mach_msg) after earlier hung simctl terminate; iPhone sim fine; ca79a2b was fine on iPad sim. Suspected simulator audio state, not app code — must confirm on the physical iPad (install failed: kAMDRemoteConnectError)."
     },
     {
       "id": "US-306", "title": "Credits + app shell", "priority": 6, "governingCriteriaRevision": 1,

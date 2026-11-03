@@ -22,3 +22,5 @@ shot freeplay-keyboard -screen freePlay -role melody -keyboardMode YES
 shot credits -screen credits -keyboardMode NO
 shot loopstation -screen newSong -demoSong YES -keyboardMode NO
 shot compare -screen newSong -demoSong YES -demoCompare YES -keyboardMode NO
+shot arrange -screen newSong -demoSong YES -demoArrange YES -keyboardMode NO
+shot mysongs -screen mySongs -keyboardMode NO

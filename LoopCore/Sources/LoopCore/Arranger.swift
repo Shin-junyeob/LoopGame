@@ -33,4 +33,21 @@ public enum Arranger {
     public static func totalFrames(_ sections: [Section], sampleRate: Int64, bpm: Int) -> Int64 {
         Clock.frame(tick: totalTicks(sections), sampleRate: sampleRate, bpm: Int64(bpm))
     }
+
+    /// One track per `song.tracks`, as a single loop as long as the whole arrangement: each section repeats the
+    /// track's notes only where the section has it on. Feed to the Renderer like any loop (playback and export).
+    public static func flatten(_ song: Song) -> [LoopTrack] {
+        let total = song.sections.reduce(0) { $0 + $1.bars }
+        var out = song.tracks.map { LoopTrack(id: $0.id, role: $0.role, timbre: $0.timbre, bars: total, notes: []) }
+        var start: Int64 = 0
+        for s in song.sections {
+            for (i, t) in song.tracks.enumerated() where s.tracks.contains(t.id) {
+                for rep in 0..<Int64(s.bars / t.bars) {
+                    out[i].notes += t.notes.map { var n = $0; n.tick += start + rep * t.loopTicks; return n }
+                }
+            }
+            start += Int64(s.bars) * Progression.ticksPerBar
+        }
+        return out
+    }
 }

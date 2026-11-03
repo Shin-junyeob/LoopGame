@@ -20,14 +20,38 @@ struct CompareSheet: View {
 
     private var versions: [(title: String, detail: String, track: LoopTrack)] {
         var out = [("내 연주", "녹음한 그대로", compare.take)]
-        for c in compare.options ?? [] {
+        var options = compare.options ?? []
+        // Options come best-F1 first; two that differ by at most one note aren't worth comparing.
+        if options.count == 2 && Self.differ(options[0].notes, options[1].notes) <= 1 { options.removeLast() }
+        for c in options {
             var t = compare.take
             t.notes = c.notes.sorted { $0.tick < $1.tick }
             var title = c.strength == .weak ? "살짝 고침" : "많이 고침"
             if out.contains(where: { $0.0 == "AI 보정 · " + title }) { title += " 2" }
-            out.append(("AI 보정 · " + title, "박자 일치 \(Int(c.f1 * 100))%", t))
+            out.append(("AI 보정 · " + title, changes(t.notes), t))
         }
         return out
+    }
+
+    /// Notes in one version but not the other (by tick and pitch), the larger side.
+    private static func differ(_ a: [Note], _ b: [Note]) -> Int {
+        let key = { (n: Note) in [n.tick, Int64(n.pitch)] }
+        let sa = Set(a.map(key)), sb = Set(b.map(key))
+        return max(sa.subtracting(sb).count, sb.subtracting(sa).count)
+    }
+
+    /// What the AI changed vs the take: each output note is compared with the take note nearest in time.
+    private func changes(_ notes: [Note]) -> String {
+        let take = compare.take.notes
+        var pitch = 0, moved = 0
+        for n in notes {
+            guard let m = take.min(by: { abs($0.tick - n.tick) < abs($1.tick - n.tick) }) else { continue }
+            if m.pitch != n.pitch { pitch += 1 }
+            if m.tick != n.tick { moved += 1 }
+        }
+        var parts = ["바뀐 음 \(pitch)개", "박자 맞춤 \(moved)개"]
+        if take.count > notes.count { parts.append("뺀 음 \(take.count - notes.count)개") }
+        return parts.joined(separator: " · ")
     }
 
     var body: some View {
