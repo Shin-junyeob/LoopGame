@@ -40,6 +40,7 @@ ADR(§9)은 G1~G3 답에 따라 갈라진다.
 - **G5 → §5 표 초안 그대로 승인**
 - **G6 → Recommender가 S2에 실패하거나 평가 불가(n<30)면 고정 순서 규칙으로 v1 출시**, 갤러리에 올라온 곡의 트랙 추가 순서로 데이터를 모아 업데이트 때 모델로 교체. 보정 AI(B3b)는 v1에 그대로 출시
 - **G7 비용 (2026-11-03) → 무료로 개발, Apple Developer Program($99/년) 결제는 출시 직전에 결정.** Phase 0~4는 무료 개인 팀(내 기기 설치, 7일마다 재서명, 기기 3대·기기당 앱 3개)으로 진행. CloudKit·Game Center가 필요한 S3·Phase 5는 결제 결정 뒤로 이동. 결제하지 않기로 하면 갤러리·랭킹·Game Center 없이 개인 기기용으로 남김
+- **G8 연주 UI (2026-11-03) → 패드 악기 모양이 기본 + 설정에서 건반으로 전환.** 드럼 = 킷 패드. 베이스·멜로디 = 현재 키의 음계 음만 배치한 패드(음계 밖 음 없음), 코드 = 패드 1개당 코드 1개(진행의 다이어토닉 3화음). 건반 모드는 12음 전체라 음계 밖 음을 칠 수 있음 → 녹음 직후 AI 보정안이 G3 안으로 고쳐 제안(기존 흐름 그대로), 스테이지 따라 치기에서는 틀린 음 = Miss. Phase 2~3 체감 확인: 사용자가 iPhone 15 Pro에서 측정 화면을 쳐 보고 '늦게 느껴지지 않음' → 루프백 생략
 
 ## 3. RALPLAN-DR 요약
 
@@ -204,7 +205,7 @@ game/
 - **수락**: `swift test` 전체 통과
 
 ### Phase 3 — 앱: 자유 연주 · 루프 스테이션 · AI 비교 · 저장/내보내기
-- `TouchPadView` 기반 패드/건반, 녹음(카운트인 1마디), `CompareView`(원본 + 통과 후보 1~2, 0개면 원본 + "보정안 없음"), `ArrangeView`(구간별 트랙 토글), 저장(Application Support, 곡별 JSON)
+- `TouchPadView` 기반 연주 화면(G8): 기본 패드(드럼 킷 / 음계 패드 / 코드 패드) + 설정 토글로 건반, 녹음(카운트인 1마디). S1 측정 화면은 임시이며 대체됨. 패드는 `ScrollView` 안에 두지 말 것(`delaysContentTouches`로 터치가 ~150ms 늦어짐 — S1 1차 실측), `CompareView`(원본 + 통과 후보 1~2, 0개면 원본 + "보정안 없음"), `ArrangeView`(구간별 트랙 토글), 저장(Application Support, 곡별 JSON)
 - 내보내기: `Renderer` 오프라인 렌더 → `AVAudioFile`(m4a AAC / wav) → `ShareLink`
 - iPad: `horizontalSizeClass == .regular`면 2열
 - `CreditsView`: `licenses.json`의 CC-BY 항목 표시
@@ -319,6 +320,9 @@ game/
 - 리스크: iCloud 계정 3개로 숨김 가능(v1 수용, 신고 푸시 검토로 완화)
 - `songRef IN` 조회는 100개씩 나눠서
 - ADR을 G1~G6 조건부로 정리, 합의 라인 추가
+
+### 연주 UI 결정 반영 (2026-11-03)
+- G8 추가: 패드 기본 + 건반 전환. Phase 3 연주 화면 항목에 반영, ScrollView 금지 메모
 
 ### 비용 결정 반영 (2026-11-03)
 - G7 추가: 무료 개발, $99 결제는 출시 직전 결정. S3 CloudKit 스파이크를 Phase 3 전 → Phase 5 진입 시(결제 후)로 이동
