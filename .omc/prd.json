@@ -22,7 +22,7 @@
         "Pads use the UIKit touch path (UITouch.timestamp) and are NOT inside a ScrollView; multitouch",
         "iPhone portrait and iPad regular-width layouts (AC3); simulator screenshots of both saved under .omc/reports/screens/"
       ],
-      "passes": false
+      "passes": true, "completionCriteriaRevision": 1
     },
     {
       "id": "US-303", "title": "Loop station: record, loop, layer up to 8 tracks", "priority": 3, "governingCriteriaRevision": 1,

@@ -15,6 +15,8 @@ targets:
         excludes: ["Resources/**"]
       - path: App/Resources/Samples  # folder reference: keeps <role>/<timbre>/<root>.caf paths in the bundle
         type: folder
+      - path: licenses.json  # credits screen (US-306)
+        buildPhase: resources
     dependencies:
       - package: LoopCore
     settings:

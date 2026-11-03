@@ -23,8 +23,13 @@ private enum Field {
 // ponytail: lives for the app's lifetime, so nothing here is ever torn down.
 @MainActor @Observable
 final class AudioHost {
-    static let bpm: Int64 = 120
     static let tapTarget = 500
+
+    /// Live-hit instrument: drums = pad index, pitched = note - Timbres.range[role].lowerBound.
+    private(set) var role = SongRole.drums
+    private(set) var timbre = "kit"
+    private(set) var bpm = 120
+    private(set) var metronome = false
 
     private(set) var sampleRate = 0.0
     private(set) var ioBufferDuration = 0.0
@@ -42,6 +47,7 @@ final class AudioHost {
     @ObservationIgnored private let stats = UnsafeMutablePointer<UInt64>.allocate(capacity: 8)
     @ObservationIgnored private let ticksPerSecond: Double
     @ObservationIgnored private var pads: [[Float]] = []
+    @ObservationIgnored private var clicks: [[Float]] = []
     @ObservationIgnored private var nextHitID: UInt64 = 0
     @ObservationIgnored private var pending: [(id: UInt64, pad: Int, touchHost: UInt64, deliveryMs: Double)] = []
     @ObservationIgnored private var hitRows: [String] = []
@@ -97,7 +103,8 @@ final class AudioHost {
                 renderer.pointee.position = Clock.rescale(frame: renderer.pointee.position, from: Int64(sampleRate), to: Int64(rate))
             }
             sampleRate = rate
-            pads = SampleBank.buffers(role: .drums, timbre: "kit", rate: rate)
+            loadPads()
+            clicks = [SampleBank.click(accent: true, rate), SampleBank.click(accent: false, rate)]
             swapState()
         }
         stats[Field.nextSample] = .max  // timeline restarts; don't count it as a glitch
@@ -144,9 +151,30 @@ final class AudioHost {
     }
 
     private func swapState() {
-        let tracks = cpuRunning ? Self.eightTracks(pads) : []
-        let state = RenderState(sampleRate: Int64(sampleRate), bpm: Self.bpm, tracks: tracks, pads: pads)
+        let tracks = cpuRunning ? Self.eightTracks(pads)
+            : metronome ? [(clicks[0], [0], 1, 0.5), (clicks[1], [ppq, 2 * ppq, 3 * ppq], 1, 0.35)] : []
+        let state = RenderState(sampleRate: Int64(sampleRate), bpm: Int64(bpm), tracks: tracks, pads: pads)
         swap.swap(to: state.boxed(), engineRunning: engine.isRunning)
+    }
+
+    private func loadPads() {
+        pads = SampleBank.buffers(role: role, timbre: timbre, rate: sampleRate)
+        if role == .chords { pads = pads.map { $0.map { $0 * 0.5 } } }  // three notes per chord pad sum without clipping
+    }
+
+    func setInstrument(role: SongRole, timbre: String) {
+        guard role != self.role || timbre != self.timbre else { return }
+        self.role = role
+        self.timbre = timbre
+        loadPads()
+        swapState()
+    }
+
+    func setTempo(bpm: Int, metronome: Bool) {
+        guard bpm != self.bpm || metronome != self.metronome else { return }
+        self.bpm = bpm
+        self.metronome = metronome
+        swapState()
     }
 
     private static func eightTracks(_ pads: [[Float]]) -> [(samples: [Float], events: [Int64], bars: Int64, gain: Float)] {

@@ -65,6 +65,11 @@ enum SampleBank {
         }
     }
 
+    /// Metronome tick: short sine blip, higher on beat 1.
+    static func click(accent: Bool, _ rate: Double) -> [Float] {
+        make(0.05, rate) { t in sin(2 * .pi * (accent ? 1_760 : 1_320) * t) * exp(-t * 80) }
+    }
+
     private static func electronicKit(_ rate: Double) -> [[Float]] {
         let sr = Float(rate)
         let n = noise(Int(sr))
