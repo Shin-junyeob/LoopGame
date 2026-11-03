@@ -80,3 +80,25 @@ func reanchorPreservesTickPositionWithinOneFrame(bpm: Int64) {
         }
     }
 }
+
+/// US-303 recording: a touch at a known host time lands on the expected loop tick (24 MHz timebase,
+/// anchor = renderer position 96_000 at host 10 s, 12 ms output latency).
+@Test(arguments: [60, 110, 160] as [Int64])
+func hitHostTimeConvertsToLoopTick(bpm: Int64) {
+    let sr: Int64 = 48000, latency = 0.012, hostPerSecond = 24_000_000.0
+    let clock = HostClock(anchorHostTime: 240_000_000, anchorSampleTime: 96_000, sampleRate: sr, timebaseNumer: 125, timebaseDenom: 3)
+    let loopTicks = 2 * Progression.ticksPerBar
+    for tick in stride(from: Int64(0), to: 20 * Progression.ticksPerBar, by: 157) {
+        // Host time at which `tick` is heard: its frame's offset from the anchor, plus output latency.
+        let seconds = Double(Clock.frame(tick: tick, sampleRate: sr, bpm: bpm) - 96_000) / Double(sr) + latency
+        let host = UInt64(240_000_000 + (seconds * hostPerSecond).rounded())
+        let got = clock.tick(hostTime: host, latency: latency, bpm: bpm)
+        #expect(abs(got - tick) <= 1)
+        let d = abs(Clock.wrap(tick: got, loopTicks: loopTicks) - tick % loopTicks)
+        #expect(min(d, loopTicks - d) <= 1)  // circular: tick 0 may land on loopTicks - 1
+    }
+    // Hand-checked: heard 1 s (+ latency) after the anchor = anchor tick + bpm × ppq / 60.
+    let anchorTick = Clock.tick(frame: 96_000, sampleRate: sr, bpm: bpm)
+    #expect(clock.tick(hostTime: 240_000_000 + 24_000_000 + 288_000, latency: latency, bpm: bpm) == anchorTick + bpm * ppq / 60)
+    #expect(Clock.wrap(tick: -10, loopTicks: loopTicks) == loopTicks - 10)
+}

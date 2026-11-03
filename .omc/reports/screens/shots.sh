@@ -19,3 +19,4 @@ shot freeplay-melody -screen freePlay -role melody -keyboardMode NO
 shot freeplay-chords -screen freePlay -role chords -keyboardMode NO
 shot freeplay-keyboard -screen freePlay -role melody -keyboardMode YES
 shot credits -screen credits -keyboardMode NO
+shot loopstation -screen newSong -demoSong YES -keyboardMode NO

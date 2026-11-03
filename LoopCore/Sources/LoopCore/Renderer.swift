@@ -1,8 +1,10 @@
 import CAtomic
 
 public struct Track {
-    public let samples: UnsafeMutableBufferPointer<Float>
+    /// One-shots this track plays; `eventSounds[i]` picks the one for `events[i]`.
+    public let sounds: UnsafeMutableBufferPointer<UnsafeMutableBufferPointer<Float>>
     public let events: UnsafeMutableBufferPointer<Int64>  // ticks within the loop, sorted
+    public let eventSounds: UnsafeMutableBufferPointer<Int>
     public let loopTicks: Int64
     public let gain: Float
 }
@@ -18,7 +20,16 @@ public struct RenderState {
     /// Unique per built state; the renderer detects swaps by this, not by address (ABA).
     public let generation = catomic_next_generation()
 
+    /// Single-sound tracks (every event plays `samples`).
     public init(sampleRate: Int64, bpm: Int64, tracks specs: [(samples: [Float], events: [Int64], bars: Int64, gain: Float)],
+                pads padSamples: [[Float]] = []) {
+        self.init(sampleRate: sampleRate, bpm: bpm, songTracks: specs.map {
+            (sounds: [$0.samples], events: $0.events, eventSounds: [Int](repeating: 0, count: $0.events.count), bars: $0.bars, gain: $0.gain)
+        }, pads: padSamples)
+    }
+
+    public init(sampleRate: Int64, bpm: Int64,
+                songTracks specs: [(sounds: [[Float]], events: [Int64], eventSounds: [Int], bars: Int64, gain: Float)],
                 pads padSamples: [[Float]] = []) {
         precondition(specs.count <= Self.maxTracks)
         self.sampleRate = sampleRate
@@ -28,24 +39,33 @@ public struct RenderState {
             precondition([1, 2, 4, 8].contains(spec.bars))
             let loopTicks = spec.bars * 4 * ppq
             precondition(spec.events == spec.events.sorted() && spec.events.allSatisfy { $0 >= 0 && $0 < loopTicks })
-            let samples = UnsafeMutableBufferPointer<Float>.allocate(capacity: spec.samples.count)
-            _ = samples.initialize(from: spec.samples)
+            precondition(spec.eventSounds.count == spec.events.count && spec.eventSounds.allSatisfy(spec.sounds.indices.contains))
             let events = UnsafeMutableBufferPointer<Int64>.allocate(capacity: spec.events.count)
             _ = events.initialize(from: spec.events)
-            tracks.initializeElement(at: i, to: Track(samples: samples, events: events, loopTicks: loopTicks, gain: spec.gain))
+            let eventSounds = UnsafeMutableBufferPointer<Int>.allocate(capacity: spec.eventSounds.count)
+            _ = eventSounds.initialize(from: spec.eventSounds)
+            tracks.initializeElement(at: i, to: Track(sounds: Self.copy(spec.sounds), events: events, eventSounds: eventSounds,
+                                                      loopTicks: loopTicks, gain: spec.gain))
         }
-        pads = .allocate(capacity: padSamples.count)
-        for (i, x) in padSamples.enumerated() {
+        pads = Self.copy(padSamples)
+    }
+
+    private static func copy(_ buffers: [[Float]]) -> UnsafeMutableBufferPointer<UnsafeMutableBufferPointer<Float>> {
+        let out = UnsafeMutableBufferPointer<UnsafeMutableBufferPointer<Float>>.allocate(capacity: buffers.count)
+        for (i, x) in buffers.enumerated() {
             let p = UnsafeMutableBufferPointer<Float>.allocate(capacity: x.count)
             _ = p.initialize(from: x)
-            pads.initializeElement(at: i, to: p)
+            out.initializeElement(at: i, to: p)
         }
+        return out
     }
 
     public func deallocate() {
         for t in tracks {
-            t.samples.deallocate()
+            t.sounds.forEach { $0.deallocate() }
+            t.sounds.deallocate()
             t.events.deallocate()
+            t.eventSounds.deallocate()
         }
         tracks.deallocate()
         pads.forEach { $0.deallocate() }
@@ -132,7 +152,8 @@ public struct Renderer {
             var b = end
             for t in 0..<state.tracks.count {
                 while cursors[t].next == a {
-                    trigger(samples: state.tracks[t].samples, gain: state.tracks[t].gain, at: a)
+                    let track = state.tracks[t]
+                    trigger(samples: track.sounds[track.eventSounds[cursors[t].index]], gain: track.gain, at: a)
                     advance(t, state)
                 }
                 b = min(b, cursors[t].next)

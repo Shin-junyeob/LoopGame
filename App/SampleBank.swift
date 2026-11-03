@@ -10,11 +10,12 @@ enum SampleBank {
     /// Drum pad names, index = pad (`Timbres.drumPads`).
     static let names = ["kick", "snare", "closed hat", "open hat", "tom", "crash"]
 
-    /// Drums: one buffer per pad. Pitched: one per note of `Timbres.range[role]`, index = note - lowerBound.
+    /// Drums: one buffer per pad, balanced by `DrumLevels` (kick = synthesized for both kits). Pitched: one per note of `Timbres.range[role]`, index = note - lowerBound.
     static func buffers(role: SongRole, timbre: String, rate: Double) -> [[Float]] {
         if role == .drums {
-            guard timbre == "kit" else { return electronicKit(rate) }
-            return (0..<Timbres.drumPads).map { shift(load("drums/kit/\($0)"), ratio: 1, rate) }
+            let kit = timbre == "kit" ? [DrumLevels.kick(rate: rate)] + (1..<Timbres.drumPads).map { shift(load("drums/kit/\($0)"), ratio: 1, rate) }
+                : electronicKit(rate)
+            return zip(kit, DrumLevels.gains(kit, rate: rate)).map { pad, gain in pad.map { $0 * gain } }
         }
         let notes = Timbres.range[role]!
         let dir = samples.appendingPathComponent("keys/\(timbre)")
@@ -76,7 +77,7 @@ enum SampleBank {
         let hp = zip(n.dropFirst(), n).map { ($0 - $1) * 0.5 }  // first difference = crude high-pass, hats/crash
         func at(_ x: [Float], _ t: Float) -> Float { x[min(Int(t * sr), x.count - 1)] }
         return [
-            make(0.6, rate) { t in sin(2 * .pi * (45 * t + 120 * (1 - exp(-t * 30)) / 30)) * exp(-t * 6) * 0.9 },
+            DrumLevels.kick(rate: rate),
             make(0.35, rate) { t in sin(2 * .pi * 180 * t) * exp(-t * 20) * 0.4 + at(n, t) * exp(-t * 14) * 0.5 },
             make(0.1, rate) { t in at(hp, t) * exp(-t * 60) * 0.8 },
             make(0.6, rate) { t in at(hp, t) * exp(-t * 7) * 0.6 },

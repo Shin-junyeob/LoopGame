@@ -39,6 +39,18 @@ final class AudioHost {
     private(set) var cpuStatus = "not run"
     private(set) var log: [String] = []
 
+    /// Loop-station take: 1 count-in bar from `start - bar`, then `bars` bars from `start` (absolute ticks).
+    struct Take: Equatable {
+        let start: Int64, bars: Int
+        var end: Int64 { start + Int64(bars) * Progression.ticksPerBar }
+        var notes: [Note] = []
+    }
+    private(set) var take: Take?
+    /// Tick being heard now; updated only while a take runs (count-in / progress UI).
+    private(set) var heardTick: Int64 = 0
+    /// Last finished take with at least one hit; the loop station appends it to its Song.
+    private(set) var finishedTake: LoopTrack?
+
     @ObservationIgnored private var engine = AVAudioEngine()
     @ObservationIgnored private let swap = StateSwap(free: RenderState.free)
     @ObservationIgnored private let liveQueue = catomic_live_create()
@@ -47,6 +59,9 @@ final class AudioHost {
     @ObservationIgnored private let stats = UnsafeMutablePointer<UInt64>.allocate(capacity: 8)
     @ObservationIgnored private let ticksPerSecond: Double
     @ObservationIgnored private var pads: [[Float]] = []
+    @ObservationIgnored private var bank: [String: [[Float]]] = [:]  // "role/timbre" -> SampleBank buffers at sampleRate
+    @ObservationIgnored private var songTracks: [LoopTrack] = []
+    @ObservationIgnored private var timebase = mach_timebase_info_data_t()
     @ObservationIgnored private var clicks: [[Float]] = []
     @ObservationIgnored private var nextHitID: UInt64 = 0
     @ObservationIgnored private var pending: [(id: UInt64, pad: Int, touchHost: UInt64, deliveryMs: Double)] = []
@@ -55,7 +70,6 @@ final class AudioHost {
     @ObservationIgnored private var cpuEnd = Date.distantPast
 
     init() {
-        var timebase = mach_timebase_info_data_t()
         mach_timebase_info(&timebase)
         ticksPerSecond = 1e9 * Double(timebase.denom) / Double(timebase.numer)
         renderer.initialize(to: Renderer(slot: swap.slot))
@@ -103,6 +117,7 @@ final class AudioHost {
                 renderer.pointee.position = Clock.rescale(frame: renderer.pointee.position, from: Int64(sampleRate), to: Int64(rate))
             }
             sampleRate = rate
+            bank = [:]
             loadPads()
             clicks = [SampleBank.click(accent: true, rate), SampleBank.click(accent: false, rate)]
             swapState()
@@ -151,15 +166,42 @@ final class AudioHost {
     }
 
     private func swapState() {
-        let tracks = cpuRunning ? Self.eightTracks(pads)
-            : metronome ? [(clicks[0], [0], 1, 0.5), (clicks[1], [ppq, 2 * ppq, 3 * ppq], 1, 0.35)] : []
-        let state = RenderState(sampleRate: Int64(sampleRate), bpm: Int64(bpm), tracks: tracks, pads: pads)
+        var tracks = cpuRunning ? Self.eightTracks(pads) : songTracks.map(spec)
+        if !cpuRunning && (metronome || take != nil) && tracks.count < RenderState.maxTracks {
+            tracks.append(([clicks[0], clicks[1]], [0, ppq, 2 * ppq, 3 * ppq], [0, 1, 1, 1], 1, 0.4))
+        }
+        let state = RenderState(sampleRate: Int64(sampleRate), bpm: Int64(bpm), songTracks: tracks, pads: pads)
         swap.swap(to: state.boxed(), engineRunning: engine.isRunning)
     }
 
+    private func buffers(_ role: SongRole, _ timbre: String) -> [[Float]] {
+        let id = "\(role)/\(timbre)"
+        if let b = bank[id] { return b }
+        let b = SampleBank.buffers(role: role, timbre: timbre, rate: sampleRate)
+        bank[id] = b
+        return b
+    }
+
     private func loadPads() {
-        pads = SampleBank.buffers(role: role, timbre: timbre, rate: sampleRate)
+        pads = buffers(role, timbre)
         if role == .chords { pads = pads.map { $0.map { $0 * 0.5 } } }  // three notes per chord pad sum without clipping
+    }
+
+    /// One render track per LoopTrack, carrying only the one-shots its notes use.
+    private func spec(_ track: LoopTrack) -> (sounds: [[Float]], events: [Int64], eventSounds: [Int], bars: Int64, gain: Float) {
+        let all = buffers(track.role, track.timbre)
+        let lowest = track.role == .drums ? 0 : Timbres.range[track.role]!.lowerBound
+        let notes = track.notes.sorted { $0.tick < $1.tick }
+        let pitches = Array(Set(notes.map(\.pitch))).sorted()
+        return (pitches.map { all[$0 - lowest] }, notes.map(\.tick), notes.map { pitches.firstIndex(of: $0.pitch)! },
+                Int64(track.bars), track.role == .chords ? 0.4 : 0.8)
+    }
+
+    /// Tracks the loop station plays (already filtered for mute); `[]` when leaving it.
+    func setSongTracks(_ tracks: [LoopTrack]) {
+        guard tracks != songTracks else { return }
+        songTracks = tracks
+        swapState()
     }
 
     func setInstrument(role: SongRole, timbre: String) {
@@ -177,12 +219,13 @@ final class AudioHost {
         swapState()
     }
 
-    private static func eightTracks(_ pads: [[Float]]) -> [(samples: [Float], events: [Int64], bars: Int64, gain: Float)] {
+    private static func eightTracks(_ pads: [[Float]]) -> [(sounds: [[Float]], events: [Int64], eventSounds: [Int], bars: Int64, gain: Float)] {
         let bars: [Int64] = [1, 2, 4, 8, 1, 2, 4, 8]
         return (0..<8).map { t in
             let loopTicks = bars[t] * 4 * ppq
             let step = t % 2 == 0 ? ppq : ppq / 2
-            return (pads[t % pads.count], Array(stride(from: Int64(t) * 30, to: loopTicks, by: Int(step))), bars[t], 0.12)
+            let events = Array(stride(from: Int64(t) * 30, to: loopTicks, by: Int(step)))
+            return ([pads[t % pads.count]], events, [Int](repeating: 0, count: events.count), bars[t], 0.12)
         }
     }
 
@@ -200,6 +243,7 @@ final class AudioHost {
         nextHitID += 1
         guard catomic_live_push(liveQueue, id << 8 | UInt64(pad)) else { return note("live queue full, hit dropped") }
         let touchHost = UInt64(touchTimestamp * ticksPerSecond)
+        record(pad: pad, touchHost: touchHost)
         pending.append((id, pad, touchHost, Double(mach_absolute_time() &- touchHost) / ticksPerSecond * 1000))
     }
 
@@ -222,6 +266,54 @@ final class AudioHost {
         }
     }
 
+    // MARK: Loop-station recording
+
+    /// Renderer timeline (frame 0 = tick 0) from the last callback's anchor; nil before the first callback.
+    private func hostClock() -> HostClock? {
+        let r = readRecord()
+        guard r[Field.anchorHost] != 0 else { return nil }
+        return HostClock(anchorHostTime: r[Field.anchorHost], anchorSampleTime: Int64(bitPattern: r[Field.anchorPosition]),
+                         sampleRate: Int64(sampleRate), timebaseNumer: Int64(timebase.numer), timebaseDenom: Int64(timebase.denom))
+    }
+
+    /// Count-in starts on the next bar line the renderer hasn't reached yet; the metronome plays until the take ends.
+    func startRecording(bars: Int) {
+        guard take == nil, let clock = hostClock() else { return }
+        let bar = Progression.ticksPerBar
+        let rendering = clock.tick(hostTime: mach_absolute_time(), latency: 0, bpm: Int64(bpm))
+        take = Take(start: ((rendering + ppq / 4) / bar + 2) * bar, bars: bars)
+        heardTick = rendering
+        swapState()
+    }
+
+    func cancelRecording() {
+        guard take != nil else { return }
+        take = nil
+        swapState()
+    }
+
+    /// Touch -> heard tick (outputLatency included, as in the S1 latency proxy) -> tick within the loop.
+    /// The window is shifted a 16th early so a hit just before the downbeat still counts (it wraps to the loop end).
+    private func record(pad: Int, touchHost: UInt64) {
+        guard let t = take, let clock = hostClock() else { return }
+        let tick = clock.tick(hostTime: touchHost, latency: outputLatency, bpm: Int64(bpm))
+        guard tick >= t.start - ppq / 4 && tick < t.end - ppq / 4 else { return }
+        let loopTicks = Int64(t.bars) * Progression.ticksPerBar
+        take?.notes.append(Note(tick: Clock.wrap(tick: tick, loopTicks: loopTicks),
+                                pitch: role == .drums ? pad : pad + Timbres.range[role]!.lowerBound))
+    }
+
+    private func advanceTake() {
+        guard let t = take, let clock = hostClock() else { return }
+        heardTick = clock.tick(hostTime: mach_absolute_time(), latency: outputLatency, bpm: Int64(bpm))
+        guard heardTick >= t.end else { return }
+        take = nil
+        if !t.notes.isEmpty {
+            finishedTake = LoopTrack(role: role, timbre: timbre, bars: t.bars, notes: t.notes.sorted { $0.tick < $1.tick })
+        }
+        swapState()
+    }
+
     func resetTaps() {
         latenciesMs = []
         hitRows = []
@@ -239,6 +331,7 @@ final class AudioHost {
     private func tick() {
         swap.collect()
         resolveHits()
+        advanceTake()
         guard cpuRunning else { return }
         let left = cpuEnd.timeIntervalSinceNow
         guard left <= 0 else {

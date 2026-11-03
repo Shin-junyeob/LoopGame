@@ -140,3 +140,18 @@ func resampleLength(rates: (Int, Int), length: Int) {
     #expect(Array(UnsafeBufferPointer(start: out, count: 4)) == [0, 0, 0, 0])
     x.deallocate()
 }
+
+/// A recorded track plays a different one-shot per event (US-303), including two at the same tick (a chord).
+@Test func eventSoundsPickTheOneShotPerEvent() {
+    let swap = StateSwap(free: RenderState.free)
+    swap.swap(to: RenderState(sampleRate: sr, bpm: 120, songTracks: [
+        (sounds: [[1], [2], [4]], events: [0, 0, ppq], eventSounds: [0, 2, 1], bars: 1, gain: 1),
+    ]).boxed(), engineRunning: false)
+    var renderer = Renderer(slot: swap.slot)
+    defer { renderer.deallocate() }
+    let n = Int(Clock.frame(tick: ppq, sampleRate: sr, bpm: 120)) + 1
+    let out = UnsafeMutablePointer<Float>.allocate(capacity: n)
+    defer { out.deallocate() }
+    renderer.render(into: out, frameCount: n)
+    #expect(out[0] == 5 && out[1] == 0 && out[n - 1] == 2)
+}

@@ -32,7 +32,8 @@
         "Unit test (LoopCore or app logic module): hits at known host times convert to expected ticks at BPM 60/110/160 within 1 tick",
         "Next-instrument hint shown using Recommender (fixed order per G6) (AC12)"
       ],
-      "passes": false
+      "passes": true, "completionCriteriaRevision": 1,
+      "notes": "Real touch recording not yet exercised on a device (simulator cannot tap pads) — user device test pending"
     },
     {
       "id": "US-304", "title": "AI compare after recording (AC10-13)", "priority": 4, "governingCriteriaRevision": 1,

@@ -493,11 +493,6 @@
     "attribution": "Stage table (plan §5, G5) and follow-along patterns authored by Claude (Anthropic) on the user's behalf."
   },
   {
-    "path": "App/Resources/Samples/drums/kit/0.caf",
-    "license": "CC0",
-    "attribution": "Versilian Community Sample Library (Versilian Studios LLC), CC0 1.0 (LICENSE verified 2026-11-04), https://github.com/sgossner/VCSL/blob/master/Membranophones/Struck%20Membranophones/Bass%20Drum%202/bassdrum_hit_f.wav . Mono 44.1 kHz, trimmed, faded, peak-normalized."
-  },
-  {
     "path": "App/Resources/Samples/drums/kit/1.caf",
     "license": "CC0",
     "attribution": "Versilian Community Sample Library (Versilian Studios LLC), CC0 1.0 (LICENSE verified 2026-11-04), https://github.com/sgossner/VCSL/blob/master/Membranophones/Struck%20Membranophones/Snare%20Drum%2C%20Modern%201/Snare2_HitSN_v7_rr1_Mid.wav . Mono 44.1 kHz, trimmed, faded, peak-normalized."

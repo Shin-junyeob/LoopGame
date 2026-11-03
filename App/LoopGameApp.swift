@@ -67,7 +67,8 @@ struct HomeView: View {
                 case .freePlay: FreePlayView(host: host)
                 case .settings: SettingsView()
                 case .credits: CreditsView()
-                case .newSong, .mySongs:
+                case .newSong: LoopStationView(host: host)
+                case .mySongs:
                     ContentUnavailableView("준비 중이에요", systemImage: "hammer.fill",
                                            description: Text("루프 스테이션이 곧 여기에 들어와요"))
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
