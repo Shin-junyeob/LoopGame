@@ -4,7 +4,9 @@ DerivedData/
 *.xcodeproj/
 xcuserdata/
 .swiftpm/
-.omc/state/
+**/.omc/state/
+**/.omc/project-memory.json
+LoopCore/.omc/
 .venv/
 __pycache__/
 data/raw/
