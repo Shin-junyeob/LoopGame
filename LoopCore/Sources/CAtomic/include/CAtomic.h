@@ -14,9 +14,13 @@ void *_Nullable catomic_load(CAtomicSlot *_Nonnull slot);                       
 void *_Nullable catomic_exchange(CAtomicSlot *_Nonnull slot, void *_Nullable state);   // acq_rel
 void catomic_epoch_increment(CAtomicSlot *_Nonnull slot);                               // release
 uint64_t catomic_epoch_load(CAtomicSlot *_Nonnull slot);                                // acquire
+/// Process-wide counter, first value 1: a RenderState's identity (addresses can be reused).
+uint64_t catomic_next_generation(void);
 
 /// SPSC live-hit queue: main pushes `id << 8 | pad`, render pops at callback start and reports the
-/// frame it voiced the hit at via catomic_live_done; main polls catomic_live_result (-1 = pending).
+/// frame it voiced the hit at via catomic_live_done; main polls catomic_live_result (-1 = pending,
+/// CLIVE_DROPPED = not voiced: unknown pad or voice pool full).
+#define CLIVE_DROPPED (-2)
 typedef struct CLiveQueue CLiveQueue;
 
 CLiveQueue *_Nonnull catomic_live_create(void);

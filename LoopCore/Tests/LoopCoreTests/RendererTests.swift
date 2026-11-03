@@ -98,10 +98,45 @@ func resampleLength(rates: (Int, Int), length: Int) {
     renderer.render(into: out, frameCount: 4)
     #expect((0..<4).allSatisfy { out[$0] == 0 })
     #expect(catomic_live_push(queue, 7 << 8 | 0))
-    #expect(catomic_live_push(queue, 8 << 8 | 5))  // unknown pad: reported, not voiced
+    #expect(catomic_live_push(queue, 8 << 8 | 5))  // unknown pad: reported as dropped, not voiced
     #expect(catomic_live_result(queue, 7) == -1)
     renderer.render(into: out, frameCount: 4)
     #expect(Array(UnsafeBufferPointer(start: out, count: 4)) == [0.5, 0.25, 0.125, 0])
     #expect(catomic_live_result(queue, 7) == 4)
-    #expect(catomic_live_result(queue, 8) == 4)
+    #expect(catomic_live_result(queue, 8) == Int64(CLIVE_DROPPED))
+}
+
+@Test func liveHitWithFullVoicePoolIsReportedDropped() {
+    let swap = StateSwap(free: RenderState.free)
+    swap.swap(to: RenderState(sampleRate: sr, bpm: 120, tracks: [], pads: [[Float](repeating: 1, count: 100)]).boxed(), engineRunning: false)
+    let queue = catomic_live_create()
+    defer { catomic_live_destroy(queue) }
+    var renderer = Renderer(slot: swap.slot)
+    renderer.live = queue
+    defer { renderer.deallocate() }
+    for id in 0...UInt64(Renderer.voiceCount) { #expect(catomic_live_push(queue, id << 8 | 0)) }
+    let out = UnsafeMutablePointer<Float>.allocate(capacity: 4)
+    defer { out.deallocate() }
+    renderer.render(into: out, frameCount: 4)
+    #expect((0..<UInt64(Renderer.voiceCount)).allSatisfy { catomic_live_result(queue, $0) == 0 })
+    #expect(catomic_live_result(queue, UInt64(Renderer.voiceCount)) == Int64(CLIVE_DROPPED))
+}
+
+/// ABA: a new state at the same address as the previous one must still cut voices and re-seek.
+@Test func newStateAtSameAddressCutsVoices() {
+    let swap = StateSwap(free: RenderState.free)
+    let x = RenderState(sampleRate: sr, bpm: 120, tracks: [(samples: [Float](repeating: 1, count: 1000), events: [0], bars: 1, gain: 1)])
+    let raw = x.boxed()
+    swap.swap(to: raw, engineRunning: false)
+    var renderer = Renderer(slot: swap.slot)
+    defer { renderer.deallocate() }
+    let out = UnsafeMutablePointer<Float>.allocate(capacity: 4)
+    defer { out.deallocate() }
+    renderer.render(into: out, frameCount: 4)
+    #expect(Array(UnsafeBufferPointer(start: out, count: 4)) == [1, 1, 1, 1])
+    // Y reuses X's box address; X's buffers stay alive so the old (address-compare) bug reads 1s, not freed memory.
+    raw.assumingMemoryBound(to: RenderState.self).pointee = RenderState(sampleRate: sr, bpm: 120, tracks: [])
+    renderer.render(into: out, frameCount: 4)
+    #expect(Array(UnsafeBufferPointer(start: out, count: 4)) == [0, 0, 0, 0])
+    x.deallocate()
 }

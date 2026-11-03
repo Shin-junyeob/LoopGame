@@ -15,6 +15,8 @@ public struct RenderState {
     public let tracks: UnsafeMutableBufferPointer<Track>
     /// One-shot samples for live hits (pad index = position).
     public let pads: UnsafeMutableBufferPointer<UnsafeMutableBufferPointer<Float>>
+    /// Unique per built state; the renderer detects swaps by this, not by address (ABA).
+    public let generation = catomic_next_generation()
 
     public init(sampleRate: Int64, bpm: Int64, tracks specs: [(samples: [Float], events: [Int64], bars: Int64, gain: Float)],
                 pads padSamples: [[Float]] = []) {
@@ -86,7 +88,7 @@ public struct Renderer {
     private let slot: OpaquePointer
     private let voices: UnsafeMutableBufferPointer<Voice>
     private let cursors: UnsafeMutableBufferPointer<Cursor>
-    private var lastState: UnsafeMutableRawPointer?
+    private var lastGeneration: UInt64 = 0
     /// Optional CLiveQueue: hits are drained at callback start and voiced at the buffer's first frame.
     public var live: OpaquePointer?
 
@@ -113,16 +115,16 @@ public struct Renderer {
         }
         guard let raw = catomic_load(slot) else { return }
         let state = raw.assumingMemoryBound(to: RenderState.self).pointee
-        if raw != lastState {
-            lastState = raw
+        if state.generation != lastGeneration {
+            lastGeneration = state.generation
             seek(state)
         }
         if let live {
             var event: UInt64 = 0
             while catomic_live_pop(live, &event) {
                 let pad = Int(event & 0xff)
-                if pad < state.pads.count { trigger(samples: state.pads[pad], gain: 1, at: base) }
-                catomic_live_done(live, event >> 8, base)
+                let voiced = pad < state.pads.count && trigger(samples: state.pads[pad], gain: 1, at: base)
+                catomic_live_done(live, event >> 8, voiced ? base : Int64(CLIVE_DROPPED))
             }
         }
         var a = base
@@ -173,12 +175,14 @@ public struct Renderer {
     }
 
     // ponytail: full pool drops the new note; add voice stealing if 64 ever overflows.
-    private func trigger(samples: UnsafeMutableBufferPointer<Float>, gain: Float, at frame: Int64) {
-        guard samples.count > 0, let p = samples.baseAddress else { return }
+    @discardableResult
+    private func trigger(samples: UnsafeMutableBufferPointer<Float>, gain: Float, at frame: Int64) -> Bool {
+        guard samples.count > 0, let p = samples.baseAddress else { return false }
         for i in 0..<Self.voiceCount where voices[i].end <= frame {
             voices[i] = Voice(start: frame, end: frame + Int64(samples.count), samples: UnsafePointer(p), gain: gain)
-            return
+            return true
         }
+        return false
     }
 }
 

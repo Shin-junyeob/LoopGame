@@ -51,7 +51,7 @@ func S2Eval() throws {
     } } ?? Corrector.settings
 
     struct Row { var role: String; var hard: [Bool] = []; var stat: [Bool] = []; var f1w: [Double] = []; var f1s: [Double] = []
-        var none = 0; var n = 0; var b3b: [Double] = []; var rule: [Double] = []; var lat: [Double] = [] }
+        var none = 0; var n = 0; var b3b: [Double] = []; var rule: [Double] = []; var b3bX: [Double] = []; var ruleX: [Double] = []; var lat: [Double] = [] }
     var rows = Dictionary(uniqueKeysWithValues: (roles + ["all"]).map { ($0, Row(role: $0)) })
     for it in items {
         let drums = it.role == "drums"
@@ -82,18 +82,22 @@ func S2Eval() throws {
             }
             row.b3b.append(Metrics.onsetF1(candidate: best, reference: clean, drums: drums))
             row.rule.append(Metrics.onsetF1(candidate: rule, reference: clean, drums: drums))
+            // Exact pitch: the jitter shifts pitches by ±1–2, so the ±2 tolerance above counts unrepaired pitches as restored.
+            row.b3bX.append(Metrics.onsetF1(candidate: best, reference: clean, drums: drums, pitchTolerance: 0))
+            row.ruleX.append(Metrics.onsetF1(candidate: rule, reference: clean, drums: drums, pitchTolerance: 0))
             rows[r] = row
         }
     }
     let modelDir = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
         .appendingPathComponent("Sources/LoopCore/Resources/model")
     let sizes = try roles.map { try FileManager.default.attributesOfItem(atPath: modelDir.appendingPathComponent("\($0).json").path)[.size] as! Int }
-    var out = "| role | n | hard | stat(cand) | F1 weak | F1 strong | none | restore B3b | restore rule | diff [95% CI] | lat mean/p95 ms |\n|---|---|---|---|---|---|---|---|---|---|---|\n"
+    var out = "| role | n | hard | stat(cand) | F1 weak | F1 strong | none | restore B3b | restore rule | diff [95% CI] | exact B3b | exact rule | exact diff [95% CI] | lat mean/p95 ms |\n|---|---|---|---|---|---|---|---|---|---|---|---|---|---|\n"
     for r in roles + ["all"] {
         let w = rows[r]!
-        let d = zip(w.b3b, w.rule).map { $0 - $1 }, ci = bootstrapCI(d), lat = w.lat.sorted()
+        let d = zip(w.b3b, w.rule).map { $0 - $1 }, ci = bootstrapCI(d)
+        let dx = zip(w.b3bX, w.ruleX).map { $0 - $1 }, cx = bootstrapCI(dx), lat = w.lat.sorted()
         func rate(_ b: [Bool]) -> String { f(Double(b.filter { $0 }.count) / Double(b.count)) }
-        out += "| \(r) | \(w.n) | \(rate(w.hard)) | \(rate(w.stat)) | \(f(mean(w.f1w))) | \(f(mean(w.f1s))) | \(f(Double(w.none) / Double(w.n))) | \(f(mean(w.b3b))) | \(f(mean(w.rule))) | \(f(mean(d))) [\(f(ci.0)), \(f(ci.1))] | \(f(mean(w.lat))) / \(f(lat[Int(0.95 * Double(lat.count)) - 1])) |\n"
+        out += "| \(r) | \(w.n) | \(rate(w.hard)) | \(rate(w.stat)) | \(f(mean(w.f1w))) | \(f(mean(w.f1s))) | \(f(Double(w.none) / Double(w.n))) | \(f(mean(w.b3b))) | \(f(mean(w.rule))) | \(f(mean(d))) [\(f(ci.0)), \(f(ci.1))] | \(f(mean(w.b3bX))) | \(f(mean(w.ruleX))) | \(f(mean(dx))) [\(f(cx.0)), \(f(cx.1))] | \(f(mean(w.lat))) / \(f(lat[Int(0.95 * Double(lat.count)) - 1])) |\n"
     }
     out += "\nmodel sizes (bytes): " + zip(roles, sizes).map { "\($0)=\($1)" }.joined(separator: ", ") + "\n"
     print("S2EVAL_BEGIN\n" + out + "S2EVAL_END")

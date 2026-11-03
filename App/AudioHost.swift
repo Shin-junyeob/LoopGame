@@ -183,6 +183,7 @@ final class AudioHost {
         let anchorPosition = Int64(bitPattern: r[Field.anchorPosition])
         pending.removeAll { hit in
             let frame = catomic_live_result(liveQueue, hit.id)
+            if frame == Int64(CLIVE_DROPPED) { note("hit \(hit.id) dropped (voice pool full or unknown pad), not in latency stats"); return true }
             guard frame >= 0 else { return false }
             let outputHost = anchorHost + (Double(frame - anchorPosition) / sampleRate + outputLatency) * ticksPerSecond
             let ms = (outputHost - Double(hit.touchHost)) / ticksPerSecond * 1000

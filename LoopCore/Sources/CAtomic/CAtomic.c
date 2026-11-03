@@ -32,6 +32,11 @@ uint64_t catomic_epoch_load(CAtomicSlot *slot) {
     return atomic_load_explicit(&slot->epoch, memory_order_acquire);
 }
 
+uint64_t catomic_next_generation(void) {
+    static _Atomic(uint64_t) counter = 0;
+    return atomic_fetch_add_explicit(&counter, 1, memory_order_relaxed) + 1;
+}
+
 #define CLIVE_CAP 256
 #define CLIVE_RESULTS 1024
 
