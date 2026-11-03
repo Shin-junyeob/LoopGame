@@ -1,5 +1,5 @@
 /// pitch: MIDI number for pitched roles, pad index for drums. Time in ticks (PPQ 480).
-public struct Note: Equatable, Sendable {
+public struct Note: Codable, Equatable, Sendable {
     public var tick: Int64
     public var duration: Int64
     public var pitch: Int

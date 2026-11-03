@@ -1,134 +1,59 @@
 {
   "project": "music-loop-game",
-  "branchName": "main",
-  "description": "Phase 0 + Phase 1 (S1 audio, S2 AI) of .omc/plans/music-loop-game-plan.md. Gate decisions G1-G6 in plan §2. S3 CloudKit and real-device measurements need the user (Developer Program, devices) and are reported as stop points, not implemented here.",
+  "branchName": "worktree-phase2-core",
+  "description": "Phase 2 (core logic in LoopCore) of .omc/plans/music-loop-game-plan.md §6. Gates G1-G8 in §2. No UI (Phase 3).",
   "userStories": [
     {
-      "id": "US-001",
-      "title": "Phase 0: repo + LoopCore package + App target skeleton",
-      "priority": 1,
-      "governingCriteriaRevision": 1,
+      "id": "US-201", "title": "Song model: Codable + schemaVersion + validation", "priority": 1, "governingCriteriaRevision": 1,
       "acceptanceCriteria": [
-        "git repo initialized at work/game with .gitignore excluding DerivedData, .build, generated *.xcodeproj, .omc/state",
-        "LoopCore/Package.swift (Swift Package, iOS 17 + macOS) with targets CAtomic (C) and LoopCore, test target LoopCoreTests using Swift Testing (import Testing)",
-        "`cd LoopCore && swift test` exits 0",
-        "project.yml (XcodeGen) defines iOS 17 App target depending on local LoopCore package; `xcodegen generate && xcodebuild build -scheme App -destination 'platform=iOS Simulator,name=<from simctl>'` succeeds"
+        "LoopCore/Sources/LoopCore/Song.swift: Song(schemaVersion, bpm, key, progression, tracks, sections) and LoopTrack(role drums/bass/chords/melody, timbre, bars, notes as Note in ticks); Codable",
+        "JSON round-trip test: encode -> decode -> equal, and a fixed JSON literal with schemaVersion 1 decodes (format lock)",
+        "Validation rejects: >8 tracks, BPM outside 60...160, bars not in {1,2,4,8}, notes outside the track's loop length; accepts valid songs (tests for each)",
+        "Unknown future schemaVersion is reported as an error, not a crash (test)"
       ],
-      "passes": true,
-      "completionCriteriaRevision": 1
+      "passes": true, "completionCriteriaRevision": 1
     },
     {
-      "id": "US-002",
-      "title": "S1 Clock: integer-rational tick->frame, hostTime->frame mapping, re-anchor",
-      "priority": 2,
-      "governingCriteriaRevision": 1,
-      "acceptanceCriteria": [
-        "LoopCore/Sources/LoopCore/Clock.swift: frame(tick:sampleRate:bpm:) = floor(tick*sr*60/(bpm*480)) computed in Int64 integer arithmetic, no floating point, from absolute tick (no accumulation)",
-        "Test: for BPM 60/70/97/160 at 44100 and 48000, loop start frames over 10 minutes equal an independent oracle (exact rational via separate numerator/denominator computation) — zero mismatch",
-        "Test: no Int64 overflow for 10 min at BPM 160, sr 48000",
-        "hostTime->frame conversion from an anchor (hostTime, sampleTime) with mach timebase numer/denom, latency term L and user offset; unit tested with fixed timebase values",
-        "Re-anchor on sample-rate change 44.1k<->48k preserves musical tick position: tick position error <= 1 frame (test)"
+      "id": "US-202", "title": "Timing: follow-along judgement with offset calibration", "priority": 2, "governingCriteriaRevision": 2, "completionCriteriaRevision": 2,
+      "criterionAmendments": [
+        {
+          "kind": "replaced",
+          "original": "Applying the offset shifts judgement (test: constant 80 ms late input passes after calibration, fails before)",
+          "replacement": "Applying the offset shifts judgement (test: constant 120 ms late input passes after calibration, fails before)",
+          "reason": "80 ms is inside the Good window (<= 100 ms), so an 80 ms late input already passes before calibration; the original criterion could not distinguish calibrated from uncalibrated",
+          "evidence": "Plan §5: Good = |d| <= 100 ms and 80 < 100. TimingTests uses 120 ms: fails before calibration, all Perfect after (swift test --filter TimingTests: 7 passed)",
+          "authority": "ralph session b1bb14c3 (phase2)",
+          "timestamp": "2026-11-03T13:50:00Z"
+        }
       ],
-      "passes": true,
-      "completionCriteriaRevision": 1
+      "acceptanceCriteria": [
+        "LoopCore/Sources/LoopCore/Timing.swift: judge(expected notes, input hits(ms, pad/pitch), bpm, userOffsetMs) -> per-note Perfect (|d| <= 50 ms) / Good (<= 100 ms) / Miss, wrong pad or pitch = Miss, each input matches at most one note and each note at most one input",
+        "passed = (Perfect+Good)/expected >= 0.70 (boundary tests at 0.69/0.70 and 50/51 ms, 100/101 ms)",
+        "Offset calibration from stage 1 taps (median of deltas) clamped to +-150 ms; values beyond are clamped (tests at 149/150/151 and negative)",
+        "Applying the offset shifts judgement (test: constant 120 ms late input passes after calibration, fails before)"
+      ],
+      "passes": true
     },
     {
-      "id": "US-003",
-      "title": "S1 RT-safe state swap: CAtomic shim + epoch reclamation",
-      "priority": 3,
-      "governingCriteriaRevision": 1,
+      "id": "US-203", "title": "Arranger: auto intro/main/outro >= 60 s with per-section edits", "priority": 3, "governingCriteriaRevision": 1,
       "acceptanceCriteria": [
-        "LoopCore/Sources/CAtomic: C11 stdatomic pointer load(acquire)/exchange(acq_rel) and epoch counter increment(release)/load(acquire)",
-        "Swift wrapper: main swaps RenderState via exchange, THEN reads epoch C; old state freed only when epoch >= C+2, or immediately if engine stopped",
-        "Test: after swap with epoch C+1 -> not freed; C+2 -> freed",
-        "Test reproducing order: render reads old pointer -> main exchange -> main reads C -> render callback end increments (C+1) -> old state NOT freed at this point",
-        "Test: engine-stopped swap frees immediately"
+        "LoopCore/Sources/LoopCore/Arranger.swift: arrange(song) -> sections: intro (drums+bass among tracks) -> main (all tracks, repeated) -> outro (remove one track per section until one left); repeat count chosen so total duration >= 60 s at the song BPM and longest loop length",
+        "Tests at BPM 60, 110, 160 and with 1, 2, 4, 8 tracks: total >= 60 s, every section length is a whole multiple of the longest loop, intro/outro composition as specified; songs without drums or bass fall back to first available tracks (test)",
+        "Section track toggle (AC9): setting a track on/off in a section changes only that section; arrangement stays valid (test)",
+        "Arrangement total frame length computed via Clock equals expected (test, no audio)"
       ],
-      "passes": true,
-      "completionCriteriaRevision": 1
+      "passes": true, "completionCriteriaRevision": 1
     },
     {
-      "id": "US-004",
-      "title": "S1 Renderer: allocation-free sample-accurate mixer, split vs one-shot bit-identical",
-      "priority": 4,
-      "governingCriteriaRevision": 1,
+      "id": "US-204", "title": "Stages: stages.json (G5 table) + build-task predicates", "priority": 4, "governingCriteriaRevision": 1,
       "acceptanceCriteria": [
-        "Renderer.swift: immutable RenderState (preallocated UnsafeBufferPointer tracks/samples, tracks <= 8, bars {1,2,4,8}), render-thread-owned preallocated voice pool of 64; render path uses no Swift Array/class/closure/existential/allocation/lock",
-        "Test: 10 min, 8 tracks, BPM 60/70/97/160, render split into random buffer sizes 64..4096 is bit-identical to one-shot render",
-        "Test: every loop start in rendered output lands exactly on Clock integer-formula frame",
-        "Test: resampling a sample to a new rate yields length = original*newRate/oldRate +-1 frame"
+        "LoopCore/Sources/LoopCore/Resources/stages.json encodes the 18 stages of plan §5 (name, follow-along pattern notes, BPM, build-task predicate id + params); entry in licenses.json (license self); LicenseTests pass",
+        "Stages.swift loads all 18 in order with BPMs as in §5 (test checks every stage's BPM and name)",
+        "Each of the 18 build-task predicates has a passing and a failing Song fixture in tests",
+        "Pitched follow-along patterns are G3-valid (C major scale; strong-beat notes chord tones) — checked with Metrics in a test",
+        "Free creation is not gated by stage progress: no API locks it (G5 decision 'free creation open from start')"
       ],
-      "passes": true,
-      "completionCriteriaRevision": 1
-    },
-    {
-      "id": "US-005",
-      "title": "S1 App side: AudioHost + TouchPadView + latency/CPU measurement screen",
-      "priority": 5,
-      "governingCriteriaRevision": 1,
-      "acceptanceCriteria": [
-        "App/AudioHost.swift: AVAudioEngine + AVAudioSourceNode calling LoopCore renderer, records (mHostTime, mSampleTime) anchor per callback, logs actual ioBufferDuration and outputLatency, re-anchors on AVAudioEngineConfigurationChange",
-        "App/SampleBank.swift: loads samples, resamples to engine rate (AVAudioConverter); placeholder synthesized test samples only (no third-party audio yet)",
-        "App/TouchPadView.swift: UIViewRepresentable passing UITouch.timestamp to AudioHost",
-        "Spike measurement screen: 500-tap in-app proxy latency (P50/P95/max), 8-track 60 s CPU average and underrun count, exportable log",
-        "App builds for iOS Simulator; simulator run of the measurement screen does not crash (device numbers are the user's step)"
-      ],
-      "passes": true,
-      "completionCriteriaRevision": 1
-    },
-    {
-      "id": "US-006",
-      "title": "S2 Theory + Metrics (G3 definitions)",
-      "priority": 6,
-      "governingCriteriaRevision": 1,
-      "acceptanceCriteria": [
-        "Theory.swift: major/minor scale masks, chord tones for C-G-Am-F etc, strong beat = beats 1 and 3",
-        "Metrics.swift: hard metrics (all pitched notes in scale, strong-beat notes are chord tones, note-count change <= 20%), statistical (grid error vs original ratio, onset F1 at 1/16 with pitch tolerance), drums use pitch-free metrics only",
-        "Unit tests for each metric with hand-made positive and negative cases"
-      ],
-      "passes": true,
-      "completionCriteriaRevision": 1
-    },
-    {
-      "id": "US-007",
-      "title": "S2 corpus + licenses + training pipeline",
-      "priority": 7,
-      "governingCriteriaRevision": 1,
-      "acceptanceCriteria": [
-        "licenses.json single list (allowed: CC0, CC-BY-4.0, self); test fails if any corpus/sample file lacks an entry",
-        "Drums: Groove MIDI Dataset (CC BY 4.0) subset converted; bass/chords/melody: self-authored patterns >= 100 per role, 1-8 bars, recorded as license self",
-        "tools/train/train.py (uv): pattern-level 80/20 split BEFORE jitter, builds per-role n-gram weights to LoopCore/Sources/LoopCore/Resources/model/*.json, each file <= 1 MB",
-        "Holdout eval set: holdout patterns x jitter (gaussian +-10..80 ms, 10% notes +-1..2 semitones, 5% drop/add) = 300 items, written to a fixture file"
-      ],
-      "passes": true,
-      "completionCriteriaRevision": 1
-    },
-    {
-      "id": "US-008",
-      "title": "S2 Corrector B3b + runtime filter + go/no-go evaluation",
-      "priority": 8,
-      "governingCriteriaRevision": 1,
-      "acceptanceCriteria": [
-        "Corrector.swift: B3b constrained beam search decoding positions and pitches from n-gram model (tokens: role, in-bar 16th position, scale-degree interval / drum pad), +-1/8 beat and +-2 semitone candidates masked by G3, note-count +-20% pruned inside beam; generates 3-5 candidates, filters with Metrics, returns top 1-2 by F1 or none",
-        "Eval harness (swift test or executable) reports on 300 holdout: hard metrics pass rate, statistical pass rate, mean F1 weak/strong, no-suggestion rate, ablation vs rule baseline (grid snap + nearest scale) with paired bootstrap 95% CI, model size, per-call latency on Mac",
-        "Go/no-go table written to .omc/reports/s2-ai.md against plan thresholds (hard 100%, stat >= 95% + mean F1 weak >= 0.85 strong >= 0.65, ablation CI lower bound > 0, no-suggestion <= 5%, model <= 1 MB); result reported honestly, thresholds not weakened"
-      ],
-      "passes": true,
-      "completionCriteriaRevision": 1
-    },
-    {
-      "id": "US-009",
-      "title": "S1/S2 report + user stop points",
-      "priority": 9,
-      "governingCriteriaRevision": 1,
-      "acceptanceCriteria": [
-        ".omc/reports/s1-audio.md: automated S1 go items (1)(2)(3') results with test output, and device items (3)(4) listed as user steps with exact instructions (iPhone 15 Pro / iPad Air 5, 50-tap loopback)",
-        "Recommender: fixed-order baseline implemented and tested; model evaluation marked blocked on user's >= 40 self-made songs (G6)",
-        "S3 CloudKit listed as blocked on Apple Developer Program",
-        "All work committed to git"
-      ],
-      "passes": true,
-      "completionCriteriaRevision": 1
+      "passes": true, "completionCriteriaRevision": 1
     }
   ]
 }

@@ -1,0 +1,2896 @@
+[
+ {
+  "name": "메트로놈 따라 탭",
+  "anyPad": true,
+  "song": {
+   "schemaVersion": 1,
+   "bpm": 70,
+   "key": {
+    "root": 0,
+    "mode": "major"
+   },
+   "progression": {
+    "chords": [
+     {
+      "root": 0,
+      "quality": "major"
+     },
+     {
+      "root": 7,
+      "quality": "major"
+     },
+     {
+      "root": 9,
+      "quality": "minor"
+     },
+     {
+      "root": 5,
+      "quality": "major"
+     }
+    ]
+   },
+   "tracks": [
+    {
+     "role": "drums",
+     "timbre": "kit",
+     "bars": 8,
+     "notes": [
+      {
+       "tick": 0,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 480,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 960,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 1440,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 1920,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 2400,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 2880,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 3360,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 3840,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 4320,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 4800,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 5280,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 5760,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 6240,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 6720,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 7200,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 7680,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 8160,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 8640,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 9120,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 9600,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 10080,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 10560,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 11040,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 11520,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 12000,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 12480,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 12960,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 13440,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 13920,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 14400,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 14880,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      }
+     ]
+    }
+   ],
+   "sections": []
+  },
+  "task": {
+   "offsetAndLoop": {}
+  }
+ },
+ {
+  "name": "킥 4비트",
+  "anyPad": false,
+  "song": {
+   "schemaVersion": 1,
+   "bpm": 70,
+   "key": {
+    "root": 0,
+    "mode": "major"
+   },
+   "progression": {
+    "chords": [
+     {
+      "root": 0,
+      "quality": "major"
+     },
+     {
+      "root": 7,
+      "quality": "major"
+     },
+     {
+      "root": 9,
+      "quality": "minor"
+     },
+     {
+      "root": 5,
+      "quality": "major"
+     }
+    ]
+   },
+   "tracks": [
+    {
+     "role": "drums",
+     "timbre": "kit",
+     "bars": 4,
+     "notes": [
+      {
+       "tick": 0,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 480,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 960,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 1440,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 1920,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 2400,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 2880,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 3360,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 3840,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 4320,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 4800,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 5280,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 5760,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 6240,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 6720,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 7200,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      }
+     ]
+    }
+   ],
+   "sections": []
+  },
+  "task": {
+   "drumPads": {
+    "bars": 1,
+    "counts": [
+     {
+      "pads": [
+       0
+      ],
+      "min": 4
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "킥+스네어",
+  "anyPad": false,
+  "song": {
+   "schemaVersion": 1,
+   "bpm": 75,
+   "key": {
+    "root": 0,
+    "mode": "major"
+   },
+   "progression": {
+    "chords": [
+     {
+      "root": 0,
+      "quality": "major"
+     },
+     {
+      "root": 7,
+      "quality": "major"
+     },
+     {
+      "root": 9,
+      "quality": "minor"
+     },
+     {
+      "root": 5,
+      "quality": "major"
+     }
+    ]
+   },
+   "tracks": [
+    {
+     "role": "drums",
+     "timbre": "kit",
+     "bars": 4,
+     "notes": [
+      {
+       "tick": 0,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 480,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      },
+      {
+       "tick": 960,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 1440,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      },
+      {
+       "tick": 1920,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 2400,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      },
+      {
+       "tick": 2880,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 3360,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      },
+      {
+       "tick": 3840,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 4320,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      },
+      {
+       "tick": 4800,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 5280,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      },
+      {
+       "tick": 5760,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 6240,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      },
+      {
+       "tick": 6720,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 7200,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      }
+     ]
+    }
+   ],
+   "sections": []
+  },
+  "task": {
+   "drumPads": {
+    "counts": [
+     {
+      "pads": [
+       0
+      ],
+      "min": 2
+     },
+     {
+      "pads": [
+       1
+      ],
+      "min": 2
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "하이햇 8비트",
+  "anyPad": false,
+  "song": {
+   "schemaVersion": 1,
+   "bpm": 75,
+   "key": {
+    "root": 0,
+    "mode": "major"
+   },
+   "progression": {
+    "chords": [
+     {
+      "root": 0,
+      "quality": "major"
+     },
+     {
+      "root": 7,
+      "quality": "major"
+     },
+     {
+      "root": 9,
+      "quality": "minor"
+     },
+     {
+      "root": 5,
+      "quality": "major"
+     }
+    ]
+   },
+   "tracks": [
+    {
+     "role": "drums",
+     "timbre": "kit",
+     "bars": 4,
+     "notes": [
+      {
+       "tick": 0,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 240,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 480,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 720,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 960,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 1200,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 1440,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 1680,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 1920,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 2160,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 2400,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 2640,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 2880,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 3120,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 3360,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 3600,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 3840,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 4080,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 4320,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 4560,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 4800,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 5040,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 5280,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 5520,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 5760,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 6000,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 6240,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 6480,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 6720,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 6960,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 7200,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 7440,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      }
+     ]
+    }
+   ],
+   "sections": []
+  },
+  "task": {
+   "drumPads": {
+    "counts": [
+     {
+      "pads": [
+       2,
+       3
+      ],
+      "min": 8
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "첫 드럼 루프",
+  "anyPad": false,
+  "song": {
+   "schemaVersion": 1,
+   "bpm": 80,
+   "key": {
+    "root": 0,
+    "mode": "major"
+   },
+   "progression": {
+    "chords": [
+     {
+      "root": 0,
+      "quality": "major"
+     },
+     {
+      "root": 7,
+      "quality": "major"
+     },
+     {
+      "root": 9,
+      "quality": "minor"
+     },
+     {
+      "root": 5,
+      "quality": "major"
+     }
+    ]
+   },
+   "tracks": [
+    {
+     "role": "drums",
+     "timbre": "kit",
+     "bars": 2,
+     "notes": [
+      {
+       "tick": 0,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 0,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 240,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 480,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      },
+      {
+       "tick": 480,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 720,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 960,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 960,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 1200,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 1440,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      },
+      {
+       "tick": 1440,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 1680,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 1920,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 1920,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 2160,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 2400,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      },
+      {
+       "tick": 2400,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 2640,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 2880,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 2880,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 3120,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 3360,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      },
+      {
+       "tick": 3360,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 3600,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      }
+     ]
+    }
+   ],
+   "sections": []
+  },
+  "task": {
+   "drumPads": {
+    "bars": 2,
+    "counts": [
+     {
+      "pads": [
+       0
+      ],
+      "min": 1
+     },
+     {
+      "pads": [
+       1
+      ],
+      "min": 1
+     },
+     {
+      "pads": [
+       2,
+       3
+      ],
+      "min": 1
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "BPM 바꿔보기",
+  "anyPad": false,
+  "song": {
+   "schemaVersion": 1,
+   "bpm": 90,
+   "key": {
+    "root": 0,
+    "mode": "major"
+   },
+   "progression": {
+    "chords": [
+     {
+      "root": 0,
+      "quality": "major"
+     },
+     {
+      "root": 7,
+      "quality": "major"
+     },
+     {
+      "root": 9,
+      "quality": "minor"
+     },
+     {
+      "root": 5,
+      "quality": "major"
+     }
+    ]
+   },
+   "tracks": [
+    {
+     "role": "drums",
+     "timbre": "kit",
+     "bars": 2,
+     "notes": [
+      {
+       "tick": 0,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 0,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 240,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 480,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      },
+      {
+       "tick": 480,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 720,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 960,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 960,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 1200,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 1440,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      },
+      {
+       "tick": 1440,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 1680,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 1920,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 1920,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 2160,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 2400,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      },
+      {
+       "tick": 2400,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 2640,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 2880,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 2880,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 3120,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 3360,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      },
+      {
+       "tick": 3360,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 3600,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      }
+     ]
+    }
+   ],
+   "sections": []
+  },
+  "task": {
+   "bpmChangedWithDrums": {}
+  }
+ },
+ {
+  "name": "베이스 근음",
+  "anyPad": false,
+  "song": {
+   "schemaVersion": 1,
+   "bpm": 80,
+   "key": {
+    "root": 0,
+    "mode": "major"
+   },
+   "progression": {
+    "chords": [
+     {
+      "root": 0,
+      "quality": "major"
+     }
+    ]
+   },
+   "tracks": [
+    {
+     "role": "bass",
+     "timbre": "bass",
+     "bars": 4,
+     "notes": [
+      {
+       "tick": 0,
+       "duration": 480,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 480,
+       "duration": 480,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 960,
+       "duration": 480,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 1440,
+       "duration": 480,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 1920,
+       "duration": 480,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 2400,
+       "duration": 480,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 2880,
+       "duration": 480,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 3360,
+       "duration": 480,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 3840,
+       "duration": 480,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 4320,
+       "duration": 480,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 4800,
+       "duration": 480,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 5280,
+       "duration": 480,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 5760,
+       "duration": 480,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 6240,
+       "duration": 480,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 6720,
+       "duration": 480,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 7200,
+       "duration": 480,
+       "pitch": 36,
+       "velocity": 100
+      }
+     ]
+    }
+   ],
+   "sections": []
+  },
+  "task": {
+   "tracks": {
+    "all": [
+     {
+      "role": "bass",
+      "bars": 1,
+      "minNotes": 1
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "베이스 리듬",
+  "anyPad": false,
+  "song": {
+   "schemaVersion": 1,
+   "bpm": 85,
+   "key": {
+    "root": 0,
+    "mode": "major"
+   },
+   "progression": {
+    "chords": [
+     {
+      "root": 0,
+      "quality": "major"
+     }
+    ]
+   },
+   "tracks": [
+    {
+     "role": "bass",
+     "timbre": "bass",
+     "bars": 4,
+     "notes": [
+      {
+       "tick": 0,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 480,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 720,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 960,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 1440,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 1680,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 1920,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 2400,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 2640,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 2880,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 3360,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 3600,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 3840,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 4320,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 4560,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 4800,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 5280,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 5520,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 5760,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 6240,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 6480,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 6720,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 7200,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 7440,
+       "duration": 240,
+       "pitch": 36,
+       "velocity": 100
+      }
+     ]
+    }
+   ],
+   "sections": []
+  },
+  "task": {
+   "tracks": {
+    "all": [
+     {
+      "role": "bass",
+      "bars": 2,
+      "minNotes": 6
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "베이스 루프",
+  "anyPad": false,
+  "song": {
+   "schemaVersion": 1,
+   "bpm": 85,
+   "key": {
+    "root": 0,
+    "mode": "major"
+   },
+   "progression": {
+    "chords": [
+     {
+      "root": 0,
+      "quality": "major"
+     },
+     {
+      "root": 7,
+      "quality": "major"
+     },
+     {
+      "root": 9,
+      "quality": "minor"
+     },
+     {
+      "root": 5,
+      "quality": "major"
+     }
+    ]
+   },
+   "tracks": [
+    {
+     "role": "bass",
+     "timbre": "bass",
+     "bars": 4,
+     "notes": [
+      {
+       "tick": 0,
+       "duration": 480,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 480,
+       "duration": 480,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 960,
+       "duration": 480,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 1440,
+       "duration": 480,
+       "pitch": 36,
+       "velocity": 100
+      },
+      {
+       "tick": 1920,
+       "duration": 480,
+       "pitch": 43,
+       "velocity": 100
+      },
+      {
+       "tick": 2400,
+       "duration": 480,
+       "pitch": 43,
+       "velocity": 100
+      },
+      {
+       "tick": 2880,
+       "duration": 480,
+       "pitch": 43,
+       "velocity": 100
+      },
+      {
+       "tick": 3360,
+       "duration": 480,
+       "pitch": 43,
+       "velocity": 100
+      },
+      {
+       "tick": 3840,
+       "duration": 480,
+       "pitch": 45,
+       "velocity": 100
+      },
+      {
+       "tick": 4320,
+       "duration": 480,
+       "pitch": 45,
+       "velocity": 100
+      },
+      {
+       "tick": 4800,
+       "duration": 480,
+       "pitch": 45,
+       "velocity": 100
+      },
+      {
+       "tick": 5280,
+       "duration": 480,
+       "pitch": 45,
+       "velocity": 100
+      },
+      {
+       "tick": 5760,
+       "duration": 480,
+       "pitch": 41,
+       "velocity": 100
+      },
+      {
+       "tick": 6240,
+       "duration": 480,
+       "pitch": 41,
+       "velocity": 100
+      },
+      {
+       "tick": 6720,
+       "duration": 480,
+       "pitch": 41,
+       "velocity": 100
+      },
+      {
+       "tick": 7200,
+       "duration": 480,
+       "pitch": 41,
+       "velocity": 100
+      }
+     ]
+    }
+   ],
+   "sections": []
+  },
+  "task": {
+   "tracks": {
+    "all": [
+     {
+      "role": "drums",
+      "minNotes": 1
+     },
+     {
+      "role": "bass",
+      "bars": 4,
+      "minNotes": 1
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "코드 하나",
+  "anyPad": false,
+  "song": {
+   "schemaVersion": 1,
+   "bpm": 85,
+   "key": {
+    "root": 0,
+    "mode": "major"
+   },
+   "progression": {
+    "chords": [
+     {
+      "root": 0,
+      "quality": "major"
+     }
+    ]
+   },
+   "tracks": [
+    {
+     "role": "chords",
+     "timbre": "piano",
+     "bars": 4,
+     "notes": [
+      {
+       "tick": 0,
+       "duration": 480,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 480,
+       "duration": 480,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 960,
+       "duration": 480,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 1440,
+       "duration": 480,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 1920,
+       "duration": 480,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 2400,
+       "duration": 480,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 2880,
+       "duration": 480,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 3360,
+       "duration": 480,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 3840,
+       "duration": 480,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 4320,
+       "duration": 480,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 4800,
+       "duration": 480,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 5280,
+       "duration": 480,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 5760,
+       "duration": 480,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 6240,
+       "duration": 480,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 6720,
+       "duration": 480,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 7200,
+       "duration": 480,
+       "pitch": 60,
+       "velocity": 100
+      }
+     ]
+    }
+   ],
+   "sections": []
+  },
+  "task": {
+   "tracks": {
+    "all": [
+     {
+      "role": "chords",
+      "bars": 1,
+      "minNotes": 1
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "4코드 진행",
+  "anyPad": false,
+  "song": {
+   "schemaVersion": 1,
+   "bpm": 90,
+   "key": {
+    "root": 0,
+    "mode": "major"
+   },
+   "progression": {
+    "chords": [
+     {
+      "root": 0,
+      "quality": "major"
+     },
+     {
+      "root": 7,
+      "quality": "major"
+     },
+     {
+      "root": 9,
+      "quality": "minor"
+     },
+     {
+      "root": 5,
+      "quality": "major"
+     }
+    ]
+   },
+   "tracks": [
+    {
+     "role": "chords",
+     "timbre": "piano",
+     "bars": 4,
+     "notes": [
+      {
+       "tick": 0,
+       "duration": 1920,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 1920,
+       "duration": 1920,
+       "pitch": 67,
+       "velocity": 100
+      },
+      {
+       "tick": 3840,
+       "duration": 1920,
+       "pitch": 69,
+       "velocity": 100
+      },
+      {
+       "tick": 5760,
+       "duration": 1920,
+       "pitch": 65,
+       "velocity": 100
+      }
+     ]
+    }
+   ],
+   "sections": []
+  },
+  "task": {
+   "chordChanges": {
+    "bars": 4,
+    "min": 4
+   }
+  }
+ },
+ {
+  "name": "코드 루프",
+  "anyPad": false,
+  "song": {
+   "schemaVersion": 1,
+   "bpm": 90,
+   "key": {
+    "root": 0,
+    "mode": "major"
+   },
+   "progression": {
+    "chords": [
+     {
+      "root": 0,
+      "quality": "major"
+     },
+     {
+      "root": 7,
+      "quality": "major"
+     },
+     {
+      "root": 9,
+      "quality": "minor"
+     },
+     {
+      "root": 5,
+      "quality": "major"
+     }
+    ]
+   },
+   "tracks": [
+    {
+     "role": "chords",
+     "timbre": "piano",
+     "bars": 4,
+     "notes": [
+      {
+       "tick": 0,
+       "duration": 240,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 720,
+       "duration": 240,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 1440,
+       "duration": 240,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 1920,
+       "duration": 240,
+       "pitch": 67,
+       "velocity": 100
+      },
+      {
+       "tick": 2640,
+       "duration": 240,
+       "pitch": 67,
+       "velocity": 100
+      },
+      {
+       "tick": 3360,
+       "duration": 240,
+       "pitch": 67,
+       "velocity": 100
+      },
+      {
+       "tick": 3840,
+       "duration": 240,
+       "pitch": 69,
+       "velocity": 100
+      },
+      {
+       "tick": 4560,
+       "duration": 240,
+       "pitch": 69,
+       "velocity": 100
+      },
+      {
+       "tick": 5280,
+       "duration": 240,
+       "pitch": 69,
+       "velocity": 100
+      },
+      {
+       "tick": 5760,
+       "duration": 240,
+       "pitch": 65,
+       "velocity": 100
+      },
+      {
+       "tick": 6480,
+       "duration": 240,
+       "pitch": 65,
+       "velocity": 100
+      },
+      {
+       "tick": 7200,
+       "duration": 240,
+       "pitch": 65,
+       "velocity": 100
+      }
+     ]
+    }
+   ],
+   "sections": []
+  },
+  "task": {
+   "tracks": {
+    "all": [
+     {
+      "role": "drums",
+      "minNotes": 1
+     },
+     {
+      "role": "bass",
+      "minNotes": 1
+     },
+     {
+      "role": "chords",
+      "minNotes": 1
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "음계 안에서 치기",
+  "anyPad": false,
+  "song": {
+   "schemaVersion": 1,
+   "bpm": 95,
+   "key": {
+    "root": 0,
+    "mode": "major"
+   },
+   "progression": {
+    "chords": [
+     {
+      "root": 0,
+      "quality": "major"
+     }
+    ]
+   },
+   "tracks": [
+    {
+     "role": "melody",
+     "timbre": "piano",
+     "bars": 4,
+     "notes": [
+      {
+       "tick": 0,
+       "duration": 240,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 240,
+       "duration": 240,
+       "pitch": 62,
+       "velocity": 100
+      },
+      {
+       "tick": 480,
+       "duration": 240,
+       "pitch": 64,
+       "velocity": 100
+      },
+      {
+       "tick": 720,
+       "duration": 240,
+       "pitch": 65,
+       "velocity": 100
+      },
+      {
+       "tick": 960,
+       "duration": 240,
+       "pitch": 67,
+       "velocity": 100
+      },
+      {
+       "tick": 1200,
+       "duration": 240,
+       "pitch": 69,
+       "velocity": 100
+      },
+      {
+       "tick": 1440,
+       "duration": 240,
+       "pitch": 71,
+       "velocity": 100
+      },
+      {
+       "tick": 1680,
+       "duration": 240,
+       "pitch": 72,
+       "velocity": 100
+      },
+      {
+       "tick": 1920,
+       "duration": 480,
+       "pitch": 72,
+       "velocity": 100
+      },
+      {
+       "tick": 2400,
+       "duration": 240,
+       "pitch": 71,
+       "velocity": 100
+      },
+      {
+       "tick": 2640,
+       "duration": 240,
+       "pitch": 69,
+       "velocity": 100
+      },
+      {
+       "tick": 2880,
+       "duration": 240,
+       "pitch": 67,
+       "velocity": 100
+      },
+      {
+       "tick": 3120,
+       "duration": 240,
+       "pitch": 65,
+       "velocity": 100
+      },
+      {
+       "tick": 3360,
+       "duration": 240,
+       "pitch": 64,
+       "velocity": 100
+      },
+      {
+       "tick": 3600,
+       "duration": 240,
+       "pitch": 62,
+       "velocity": 100
+      },
+      {
+       "tick": 3840,
+       "duration": 3840,
+       "pitch": 60,
+       "velocity": 100
+      }
+     ]
+    }
+   ],
+   "sections": []
+  },
+  "task": {
+   "inScale": {
+    "role": "melody",
+    "bars": 1
+   }
+  }
+ },
+ {
+  "name": "짧은 멜로디",
+  "anyPad": false,
+  "song": {
+   "schemaVersion": 1,
+   "bpm": 95,
+   "key": {
+    "root": 0,
+    "mode": "major"
+   },
+   "progression": {
+    "chords": [
+     {
+      "root": 0,
+      "quality": "major"
+     },
+     {
+      "root": 7,
+      "quality": "major"
+     },
+     {
+      "root": 9,
+      "quality": "minor"
+     },
+     {
+      "root": 5,
+      "quality": "major"
+     }
+    ]
+   },
+   "tracks": [
+    {
+     "role": "melody",
+     "timbre": "piano",
+     "bars": 2,
+     "notes": [
+      {
+       "tick": 0,
+       "duration": 480,
+       "pitch": 64,
+       "velocity": 100
+      },
+      {
+       "tick": 480,
+       "duration": 480,
+       "pitch": 65,
+       "velocity": 100
+      },
+      {
+       "tick": 960,
+       "duration": 480,
+       "pitch": 67,
+       "velocity": 100
+      },
+      {
+       "tick": 1440,
+       "duration": 480,
+       "pitch": 64,
+       "velocity": 100
+      },
+      {
+       "tick": 1920,
+       "duration": 480,
+       "pitch": 67,
+       "velocity": 100
+      },
+      {
+       "tick": 2400,
+       "duration": 480,
+       "pitch": 69,
+       "velocity": 100
+      },
+      {
+       "tick": 2880,
+       "duration": 480,
+       "pitch": 71,
+       "velocity": 100
+      },
+      {
+       "tick": 3360,
+       "duration": 480,
+       "pitch": 67,
+       "velocity": 100
+      }
+     ]
+    }
+   ],
+   "sections": []
+  },
+  "task": {
+   "tracks": {
+    "all": [
+     {
+      "role": "melody",
+      "bars": 2,
+      "minNotes": 4
+     }
+    ]
+   }
+  }
+ },
+ {
+  "name": "멜로디 루프 + AI",
+  "anyPad": false,
+  "song": {
+   "schemaVersion": 1,
+   "bpm": 100,
+   "key": {
+    "root": 0,
+    "mode": "major"
+   },
+   "progression": {
+    "chords": [
+     {
+      "root": 0,
+      "quality": "major"
+     },
+     {
+      "root": 7,
+      "quality": "major"
+     },
+     {
+      "root": 9,
+      "quality": "minor"
+     },
+     {
+      "root": 5,
+      "quality": "major"
+     }
+    ]
+   },
+   "tracks": [
+    {
+     "role": "melody",
+     "timbre": "piano",
+     "bars": 4,
+     "notes": [
+      {
+       "tick": 0,
+       "duration": 480,
+       "pitch": 64,
+       "velocity": 100
+      },
+      {
+       "tick": 480,
+       "duration": 480,
+       "pitch": 65,
+       "velocity": 100
+      },
+      {
+       "tick": 960,
+       "duration": 480,
+       "pitch": 67,
+       "velocity": 100
+      },
+      {
+       "tick": 1440,
+       "duration": 480,
+       "pitch": 64,
+       "velocity": 100
+      },
+      {
+       "tick": 1920,
+       "duration": 480,
+       "pitch": 67,
+       "velocity": 100
+      },
+      {
+       "tick": 2400,
+       "duration": 480,
+       "pitch": 69,
+       "velocity": 100
+      },
+      {
+       "tick": 2880,
+       "duration": 480,
+       "pitch": 71,
+       "velocity": 100
+      },
+      {
+       "tick": 3360,
+       "duration": 480,
+       "pitch": 67,
+       "velocity": 100
+      },
+      {
+       "tick": 3840,
+       "duration": 480,
+       "pitch": 72,
+       "velocity": 100
+      },
+      {
+       "tick": 4320,
+       "duration": 480,
+       "pitch": 71,
+       "velocity": 100
+      },
+      {
+       "tick": 4800,
+       "duration": 480,
+       "pitch": 69,
+       "velocity": 100
+      },
+      {
+       "tick": 5280,
+       "duration": 480,
+       "pitch": 67,
+       "velocity": 100
+      },
+      {
+       "tick": 5760,
+       "duration": 480,
+       "pitch": 65,
+       "velocity": 100
+      },
+      {
+       "tick": 6240,
+       "duration": 480,
+       "pitch": 64,
+       "velocity": 100
+      },
+      {
+       "tick": 6720,
+       "duration": 480,
+       "pitch": 60,
+       "velocity": 100
+      }
+     ]
+    }
+   ],
+   "sections": []
+  },
+  "task": {
+   "suggestionAdded": {}
+  }
+ },
+ {
+  "name": "음색 바꿔보기",
+  "anyPad": false,
+  "song": {
+   "schemaVersion": 1,
+   "bpm": 100,
+   "key": {
+    "root": 0,
+    "mode": "major"
+   },
+   "progression": {
+    "chords": [
+     {
+      "root": 0,
+      "quality": "major"
+     },
+     {
+      "root": 7,
+      "quality": "major"
+     },
+     {
+      "root": 9,
+      "quality": "minor"
+     },
+     {
+      "root": 5,
+      "quality": "major"
+     }
+    ]
+   },
+   "tracks": [
+    {
+     "role": "melody",
+     "timbre": "bell",
+     "bars": 2,
+     "notes": [
+      {
+       "tick": 0,
+       "duration": 480,
+       "pitch": 64,
+       "velocity": 100
+      },
+      {
+       "tick": 480,
+       "duration": 480,
+       "pitch": 65,
+       "velocity": 100
+      },
+      {
+       "tick": 960,
+       "duration": 480,
+       "pitch": 67,
+       "velocity": 100
+      },
+      {
+       "tick": 1440,
+       "duration": 480,
+       "pitch": 64,
+       "velocity": 100
+      },
+      {
+       "tick": 1920,
+       "duration": 480,
+       "pitch": 67,
+       "velocity": 100
+      },
+      {
+       "tick": 2400,
+       "duration": 480,
+       "pitch": 69,
+       "velocity": 100
+      },
+      {
+       "tick": 2880,
+       "duration": 480,
+       "pitch": 71,
+       "velocity": 100
+      },
+      {
+       "tick": 3360,
+       "duration": 480,
+       "pitch": 67,
+       "velocity": 100
+      }
+     ]
+    }
+   ],
+   "sections": []
+  },
+  "task": {
+   "timbreChanged": {}
+  }
+ },
+ {
+  "name": "루프 길이 섞기",
+  "anyPad": false,
+  "song": {
+   "schemaVersion": 1,
+   "bpm": 105,
+   "key": {
+    "root": 0,
+    "mode": "major"
+   },
+   "progression": {
+    "chords": [
+     {
+      "root": 0,
+      "quality": "major"
+     },
+     {
+      "root": 7,
+      "quality": "major"
+     },
+     {
+      "root": 9,
+      "quality": "minor"
+     },
+     {
+      "root": 5,
+      "quality": "major"
+     }
+    ]
+   },
+   "tracks": [
+    {
+     "role": "drums",
+     "timbre": "kit",
+     "bars": 1,
+     "notes": [
+      {
+       "tick": 0,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 0,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 240,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 480,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      },
+      {
+       "tick": 480,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 720,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 960,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 960,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 1200,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 1440,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      },
+      {
+       "tick": 1440,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 1680,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      }
+     ]
+    },
+    {
+     "role": "chords",
+     "timbre": "piano",
+     "bars": 4,
+     "notes": [
+      {
+       "tick": 0,
+       "duration": 480,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 480,
+       "duration": 480,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 960,
+       "duration": 480,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 1440,
+       "duration": 480,
+       "pitch": 60,
+       "velocity": 100
+      },
+      {
+       "tick": 1920,
+       "duration": 480,
+       "pitch": 67,
+       "velocity": 100
+      },
+      {
+       "tick": 2400,
+       "duration": 480,
+       "pitch": 67,
+       "velocity": 100
+      },
+      {
+       "tick": 2880,
+       "duration": 480,
+       "pitch": 67,
+       "velocity": 100
+      },
+      {
+       "tick": 3360,
+       "duration": 480,
+       "pitch": 67,
+       "velocity": 100
+      },
+      {
+       "tick": 3840,
+       "duration": 480,
+       "pitch": 69,
+       "velocity": 100
+      },
+      {
+       "tick": 4320,
+       "duration": 480,
+       "pitch": 69,
+       "velocity": 100
+      },
+      {
+       "tick": 4800,
+       "duration": 480,
+       "pitch": 69,
+       "velocity": 100
+      },
+      {
+       "tick": 5280,
+       "duration": 480,
+       "pitch": 69,
+       "velocity": 100
+      },
+      {
+       "tick": 5760,
+       "duration": 480,
+       "pitch": 65,
+       "velocity": 100
+      },
+      {
+       "tick": 6240,
+       "duration": 480,
+       "pitch": 65,
+       "velocity": 100
+      },
+      {
+       "tick": 6720,
+       "duration": 480,
+       "pitch": 65,
+       "velocity": 100
+      },
+      {
+       "tick": 7200,
+       "duration": 480,
+       "pitch": 65,
+       "velocity": 100
+      }
+     ]
+    }
+   ],
+   "sections": []
+  },
+  "task": {
+   "mixedBarLengths": {
+    "min": 2
+   }
+  }
+ },
+ {
+  "name": "곡 완성",
+  "anyPad": false,
+  "song": {
+   "schemaVersion": 1,
+   "bpm": 110,
+   "key": {
+    "root": 0,
+    "mode": "major"
+   },
+   "progression": {
+    "chords": [
+     {
+      "root": 0,
+      "quality": "major"
+     },
+     {
+      "root": 7,
+      "quality": "major"
+     },
+     {
+      "root": 9,
+      "quality": "minor"
+     },
+     {
+      "root": 5,
+      "quality": "major"
+     }
+    ]
+   },
+   "tracks": [
+    {
+     "role": "drums",
+     "timbre": "kit",
+     "bars": 2,
+     "notes": [
+      {
+       "tick": 0,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 0,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 0,
+       "duration": 120,
+       "pitch": 5,
+       "velocity": 100
+      },
+      {
+       "tick": 240,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 480,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      },
+      {
+       "tick": 480,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 720,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 960,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 960,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 1200,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 1440,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      },
+      {
+       "tick": 1440,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 1680,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 1920,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 1920,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 2160,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 2400,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      },
+      {
+       "tick": 2400,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 2640,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 2880,
+       "duration": 120,
+       "pitch": 0,
+       "velocity": 100
+      },
+      {
+       "tick": 2880,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 3120,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 3360,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      },
+      {
+       "tick": 3360,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      },
+      {
+       "tick": 3600,
+       "duration": 120,
+       "pitch": 1,
+       "velocity": 100
+      },
+      {
+       "tick": 3600,
+       "duration": 120,
+       "pitch": 2,
+       "velocity": 100
+      }
+     ]
+    }
+   ],
+   "sections": []
+  },
+  "task": {
+   "arranged": {
+    "minSeconds": 60
+   }
+  }
+ }
+]

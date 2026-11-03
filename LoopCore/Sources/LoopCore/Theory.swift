@@ -1,5 +1,5 @@
-public struct Key: Sendable {
-    public enum Mode: Sendable { case major, minor }
+public struct Key: Codable, Equatable, Sendable {
+    public enum Mode: String, Codable, Sendable { case major, minor }
     public var root: Int  // pitch class 0-11
     public var mode: Mode
     public init(root: Int, mode: Mode) { self.root = root; self.mode = mode }
@@ -12,8 +12,8 @@ public struct Key: Sendable {
     public func contains(_ pitch: Int) -> Bool { scaleMask & (1 << (((pitch % 12) + 12) % 12)) != 0 }
 }
 
-public struct Chord: Sendable {
-    public enum Quality: Sendable { case major, minor }
+public struct Chord: Codable, Equatable, Sendable {
+    public enum Quality: String, Codable, Sendable { case major, minor }
     public var root: Int
     public var quality: Quality
     public init(root: Int, quality: Quality) { self.root = root; self.quality = quality }
@@ -26,7 +26,7 @@ public struct Chord: Sendable {
 }
 
 /// One chord per 4/4 bar, cycling.
-public struct Progression: Sendable {
+public struct Progression: Codable, Equatable, Sendable {
     public var chords: [Chord]
     public init(_ chords: [Chord]) { self.chords = chords }
     public static let cGAmF = Progression([

@@ -1,5 +1,5 @@
 /// Track roles of a song, in recommendation order.
-public enum SongRole: Int, CaseIterable, Sendable {
+public enum SongRole: String, Codable, CaseIterable, Sendable {
     case drums, bass, chords, melody
 }
 

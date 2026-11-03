@@ -1,0 +1,8 @@
+# ralph progress — Phase 2 (worktree-phase2-core)
+## US-201 (pass) Song.swift — Codable, schemaVersion 1 (unknown version -> typed error), validation; Note/Key/Chord/Progression Codable; SongRole raw values now String
+## US-202 (pass) Timing.swift — Perfect<=50/Good<=100/Miss, greedy one-to-one, pass>=0.70, offset median clamp ±150 ms
+- criterion amended 80 ms -> 120 ms (80 ms is already Good; see prd.json criterionAmendments)
+## US-203 (pass) Arranger.swift — intro drums+bass (fallback first two), main repeated (one section), outro drops melody->chords->bass; total >= 60 s; per-section toggle (empty section allowed)
+## US-204 (pass) Stages.swift + Resources/stages.json — 18 stages from plan §5, 10 task types, StageContext flags (offset saved, BPM changed, timbre changed, AI suggestion added); section edit detected vs Arranger.arrange
+- stages 7, 8, 10, 13 use C-only progression (patterns stay on C); chord follow-along = one root note per chord-pad hit
+## Verification: swift test 64 tests pass; app simulator build OK

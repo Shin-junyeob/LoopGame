@@ -486,5 +486,10 @@
     "path": "LoopCore/Sources/LoopCore/Resources/model/melody.json",
     "license": "self",
     "attribution": "Trained by tools/train/train.py on the self-authored melody corpus."
+  },
+  {
+    "path": "LoopCore/Sources/LoopCore/Resources/stages.json",
+    "license": "self",
+    "attribution": "Stage table (plan §5, G5) and follow-along patterns authored by Claude (Anthropic) on the user's behalf."
   }
 ]
