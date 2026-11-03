@@ -42,7 +42,7 @@
         "Never shows an unfiltered candidate; works offline (no network APIs used) (AC11, AC13)",
         "Corrector call happens off the main thread and the UI stays responsive; unit test that the compare model exposes only Metrics-passing candidates"
       ],
-      "passes": false
+      "passes": true, "completionCriteriaRevision": 1
     },
     {
       "id": "US-305", "title": "Arrange, save/load, export audio (AC8-9, 18-19)", "priority": 5, "governingCriteriaRevision": 1,

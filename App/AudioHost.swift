@@ -129,6 +129,9 @@ final class AudioHost {
             renderer: renderer, stats: stats, record: record, ticksPerFrame: ticksPerSecond / rate))
         engine.attach(node)
         engine.connect(node, to: engine.mainMixerNode, format: format)
+        #if DEBUG
+        if UserDefaults.standard.bool(forKey: "muted") { engine.mainMixerNode.outputVolume = 0 }  // `-muted YES`: silent screenshot runs
+        #endif
         do {
             try engine.start()
         } catch {

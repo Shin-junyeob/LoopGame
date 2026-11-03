@@ -62,3 +62,29 @@ private func n(_ t: Int64, _ p: Int) -> Note { Note(tick: t, pitch: p) }
         #expect(ps.allSatisfy { (60...81).contains($0) } && ps.max()! - ps.min()! <= 12)
     }
 }
+
+/// US-304 compare model: only Metrics-passing candidates for every role, empty when none pass (AC10, AC11).
+@Test func compareExposesOnlyPassingCandidates() throws {
+    var rng = SystemRandomNumberGenerator()
+    for role in SongRole.allCases {
+        let drums = role == .drums
+        for _ in 0..<10 {
+            let notes = (0..<12).map { i in
+                n(max(0, Int64(i) * 160 + Int64.random(in: -70...70, using: &rng)), drums ? Int.random(in: 0..<6, using: &rng)
+                    : Int.random(in: Timbres.range[role] ?? 60...81, using: &rng))
+            }
+            let take = LoopTrack(role: role, bars: 1, notes: notes)
+            let options = try Corrector.suggest(for: take, key: cMaj, progression: .cGAmF)
+            #expect(options.count <= 2)
+            for c in options {
+                #expect(Corrector.passes(c, input: notes, context: ctx(drums: drums)))
+                #expect(Metrics.countChange(candidate: c.notes, original: notes) <= 0.2)
+                if !drums {
+                    #expect(Metrics.allInScale(c.notes, key: cMaj) && Metrics.strongBeatsAreChordTones(c.notes, progression: .cGAmF))
+                }
+            }
+        }
+    }
+    let stuck = LoopTrack(role: .melody, bars: 1, notes: Array(repeating: n(0, 60), count: 10))
+    #expect(try Corrector.suggest(for: stuck, key: cMaj, progression: .cGAmF).isEmpty)
+}

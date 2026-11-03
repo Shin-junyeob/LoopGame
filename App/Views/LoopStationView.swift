@@ -9,6 +9,7 @@ struct LoopStationView: View {
     @State private var role = SongRole.drums
     @State private var timbres = Timbres.ids.mapValues { $0[0] }
     @State private var bars = 2
+    @State private var compare: Compare?
     @Environment(\.horizontalSizeClass) private var sizeClass
 
     private var recording: Bool { host.take != nil }
@@ -27,6 +28,9 @@ struct LoopStationView: View {
         .onAppear {
             apply()
             play()
+            #if DEBUG
+            if UserDefaults.standard.bool(forKey: "demoCompare") { startCompare(Self.demoTake) }
+            #endif
         }
         .onChange(of: role, apply)
         .onChange(of: timbres, apply)
@@ -35,8 +39,14 @@ struct LoopStationView: View {
         .onChange(of: muted, play)
         .onChange(of: host.finishedTake) { _, take in
             guard let take, !full else { return }
-            song.tracks.append(take)
-            role = next
+            startCompare(take)
+        }
+        .sheet(item: $compare, onDismiss: play) { c in
+            CompareSheet(compare: c, host: host, song: song.tracks.filter { !muted.contains($0.id) }) { kept in
+                song.tracks.append(kept)
+                role = next
+                compare = nil
+            }
         }
         .onDisappear {
             host.cancelRecording()
@@ -51,6 +61,18 @@ struct LoopStationView: View {
 
     private func play() {
         host.setSongTracks(song.tracks.filter { !muted.contains($0.id) })
+    }
+
+    /// AC10: the Corrector runs off main; the sheet shows the take (auditioning) with a progress row meanwhile.
+    private func startCompare(_ take: LoopTrack) {
+        compare = Compare(take: take)
+        let key = song.key, progression = song.progression
+        Task {
+            let options = await Task.detached(priority: .userInitiated) {
+                (try? Corrector.suggest(for: take, key: key, progression: progression)) ?? []
+            }.value
+            if compare?.id == take.id { compare?.options = options }
+        }
     }
 
     private var next: SongRole {
@@ -178,4 +200,15 @@ struct LoopStationView: View {
         #endif
         return song
     }
+
+    #if DEBUG
+    /// `-demoCompare YES`: a jittered 2-bar melody take (off-grid, a few notes outside C major) opens the compare sheet.
+    private static var demoTake: LoopTrack {
+        let pitches = [60, 63, 67, 64, 61, 67, 71, 68, 64, 69, 73, 70, 65, 70, 72, 66]
+        let jitter: [Int64] = [35, -60, 70, -40, 55, -65, 30, 60, -50, 40, -70, 50, 65, -45, 60, -30]
+        return LoopTrack(role: .melody, timbre: "piano", bars: 2, notes: pitches.indices.map {
+            Note(tick: max(0, Int64($0) * ppq / 2 + jitter[$0]), pitch: pitches[$0])
+        })
+    }
+    #endif
 }

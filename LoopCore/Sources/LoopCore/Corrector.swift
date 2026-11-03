@@ -46,6 +46,21 @@ public enum Corrector {
             .prefix(2))
     }
 
+    /// Compare-sheet entry (AC10): the role's bundled model on a recorded take. Same filter as `suggest`, minus
+    /// candidates identical to the take or to an earlier one (nothing to compare). Synchronous: call off main.
+    public static func suggest(for take: LoopTrack, key: Key, progression: Progression) throws -> [Candidate] {
+        let model = try NGramModel.load(role: take.role.rawValue)
+        let context = Context(drums: take.role == .drums, key: key, progression: progression, bars: take.bars)
+        let order: (Note, Note) -> Bool = { ($0.tick, $0.pitch) < ($1.tick, $1.pitch) }
+        var seen = [take.notes.sorted(by: order)]
+        return suggest(take.notes, context: context, model: model).filter {
+            let notes = $0.notes.sorted(by: order)
+            if seen.contains(notes) { return false }
+            seen.append(notes)
+            return true
+        }
+    }
+
     /// Unfiltered candidates. Never show these directly.
     public static func candidates(_ input: [Note], context: Context, model: NGramModel) -> [Candidate] {
         candidates(input, context: context, model: model, settings: settings)
