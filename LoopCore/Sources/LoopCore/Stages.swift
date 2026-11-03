@@ -84,6 +84,7 @@ public enum BuildTask: Codable, Equatable, Sendable {
             return specs.allSatisfy { s in has(s.role, bars: s.bars) { $0.notes.count >= s.minNotes } }
         case let .chordChanges(bars, min):
             return has(.chords, bars: bars) { tr in
+                // A lone note at a tick counts as a chord: follow-along chord pads are root-only by design.
                 Set(Dictionary(grouping: tr.notes, by: \.tick).values.map { Set($0.map { $0.pitch % 12 }) }).count >= min
             }
         case let .inScale(role, bars):

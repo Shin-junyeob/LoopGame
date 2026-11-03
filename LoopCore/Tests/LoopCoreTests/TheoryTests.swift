@@ -28,3 +28,15 @@ import Testing
     #expect(!isStrongBeat(-1))
     #expect(isStrongBeat(-Progression.ticksPerBar))
 }
+
+@Test func chordVoicingsSitBelowMelody() {
+    let c = Chord(root: 0, quality: .major), g = Chord(root: 7, quality: .major)
+    let am = Chord(root: 9, quality: .minor), f = Chord(root: 5, quality: .major)
+    #expect(c.voicing == [60, 64, 67] && g.voicing == [55, 59, 62] && am.voicing == [57, 60, 64] && f.voicing == [53, 57, 60])
+    let diatonic = [c, Chord(root: 2, quality: .minor), Chord(root: 4, quality: .minor), f, g, am]
+    for ch in diatonic {
+        let v = ch.voicing
+        #expect(v.count == 3 && v.allSatisfy(ch.contains) && Set(v.map { $0 % 12 }).count == 3, "\(ch)")
+        #expect((53...60).contains(v[0]) && v == v.sorted() && v[2] <= 67, "\(ch)")
+    }
+}

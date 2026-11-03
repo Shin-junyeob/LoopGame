@@ -4,6 +4,9 @@
   "anyPad": true,
   "song": {
    "schemaVersion": 1,
+   "id": "EA9FC5B6-E624-471A-ACCA-D44BE5268AB1",
+   "name": "메트로놈 따라 탭",
+   "modifiedAt": 0,
    "bpm": 70,
    "key": {
     "root": 0,
@@ -31,6 +34,7 @@
    },
    "tracks": [
     {
+     "id": "76D4D156-57B9-4CD3-B896-FE2522B56500",
      "role": "drums",
      "timbre": "kit",
      "bars": 8,
@@ -241,6 +245,9 @@
   "anyPad": false,
   "song": {
    "schemaVersion": 1,
+   "id": "2AD09135-C923-4F15-A1AF-986404DADF8F",
+   "name": "킥 4비트",
+   "modifiedAt": 0,
    "bpm": 70,
    "key": {
     "root": 0,
@@ -268,6 +275,7 @@
    },
    "tracks": [
     {
+     "id": "71EEF365-A884-4AE3-AEF5-CEED0F85B984",
      "role": "drums",
      "timbre": "kit",
      "bars": 4,
@@ -392,6 +400,9 @@
   "anyPad": false,
   "song": {
    "schemaVersion": 1,
+   "id": "9F90AB23-CDC8-4B78-863D-37331AD9C660",
+   "name": "킥+스네어",
+   "modifiedAt": 0,
    "bpm": 75,
    "key": {
     "root": 0,
@@ -419,6 +430,7 @@
    },
    "tracks": [
     {
+     "id": "1CEEBBEE-BBED-4D40-8C0F-98C637D42390",
      "role": "drums",
      "timbre": "kit",
      "bars": 4,
@@ -548,6 +560,9 @@
   "anyPad": false,
   "song": {
    "schemaVersion": 1,
+   "id": "FF36D2F9-279E-422F-A973-2449B43E08CC",
+   "name": "하이햇 8비트",
+   "modifiedAt": 0,
    "bpm": 75,
    "key": {
     "root": 0,
@@ -575,6 +590,7 @@
    },
    "tracks": [
     {
+     "id": "F9FD20C3-16A0-448A-90CF-48C2E140255F",
      "role": "drums",
      "timbre": "kit",
      "bars": 4,
@@ -795,6 +811,9 @@
   "anyPad": false,
   "song": {
    "schemaVersion": 1,
+   "id": "06C99FA7-E2DE-48A1-9505-FED5284359DB",
+   "name": "첫 드럼 루프",
+   "modifiedAt": 0,
    "bpm": 80,
    "key": {
     "root": 0,
@@ -822,6 +841,7 @@
    },
    "tracks": [
     {
+     "id": "0CEABF36-9893-4803-BACD-D5D445CD09C2",
      "role": "drums",
      "timbre": "kit",
      "bars": 2,
@@ -1007,6 +1027,9 @@
   "anyPad": false,
   "song": {
    "schemaVersion": 1,
+   "id": "073EF36A-3609-40CB-8539-9C41CDF0D52F",
+   "name": "BPM 바꿔보기",
+   "modifiedAt": 0,
    "bpm": 90,
    "key": {
     "root": 0,
@@ -1034,6 +1057,7 @@
    },
    "tracks": [
     {
+     "id": "991BF21C-EF88-4E9E-AAE9-92DF38159A3F",
      "role": "drums",
      "timbre": "kit",
      "bars": 2,
@@ -1196,6 +1220,9 @@
   "anyPad": false,
   "song": {
    "schemaVersion": 1,
+   "id": "44BDF691-D727-4144-A0C6-EF147EF9E926",
+   "name": "베이스 근음",
+   "modifiedAt": 0,
    "bpm": 80,
    "key": {
     "root": 0,
@@ -1211,6 +1238,7 @@
    },
    "tracks": [
     {
+     "id": "8BB455DA-8036-42CA-964A-522402DDA9D1",
      "role": "bass",
      "timbre": "bass",
      "bars": 4,
@@ -1333,6 +1361,9 @@
   "anyPad": false,
   "song": {
    "schemaVersion": 1,
+   "id": "949D6BD3-D4E7-433F-8CDA-A2740E88A49F",
+   "name": "베이스 리듬",
+   "modifiedAt": 0,
    "bpm": 85,
    "key": {
     "root": 0,
@@ -1348,6 +1379,7 @@
    },
    "tracks": [
     {
+     "id": "0E11ECB4-CBEC-4810-A69F-B670AFD8FC69",
      "role": "bass",
      "timbre": "bass",
      "bars": 4,
@@ -1518,6 +1550,9 @@
   "anyPad": false,
   "song": {
    "schemaVersion": 1,
+   "id": "BB78AD7C-582D-4202-B14A-9A76E35223AD",
+   "name": "베이스 루프",
+   "modifiedAt": 0,
    "bpm": 85,
    "key": {
     "root": 0,
@@ -1545,6 +1580,7 @@
    },
    "tracks": [
     {
+     "id": "CCFEA2C6-FC70-49A6-9AD1-3E664F39302A",
      "role": "bass",
      "timbre": "bass",
      "bars": 4,
@@ -1671,6 +1707,9 @@
   "anyPad": false,
   "song": {
    "schemaVersion": 1,
+   "id": "2B57A914-70F1-43DF-9380-E9EAC2586E8B",
+   "name": "코드 하나",
+   "modifiedAt": 0,
    "bpm": 85,
    "key": {
     "root": 0,
@@ -1686,6 +1725,7 @@
    },
    "tracks": [
     {
+     "id": "E78FA088-FBCD-4DF6-8EAE-B0F5E22AA979",
      "role": "chords",
      "timbre": "piano",
      "bars": 4,
@@ -1808,6 +1848,9 @@
   "anyPad": false,
   "song": {
    "schemaVersion": 1,
+   "id": "7712E3F4-13F5-4140-AC6C-B7D1FBFE1ED7",
+   "name": "4코드 진행",
+   "modifiedAt": 0,
    "bpm": 90,
    "key": {
     "root": 0,
@@ -1835,6 +1878,7 @@
    },
    "tracks": [
     {
+     "id": "8C68EC3F-40F9-4581-9512-2733BE744326",
      "role": "chords",
      "timbre": "piano",
      "bars": 4,
@@ -1880,6 +1924,9 @@
   "anyPad": false,
   "song": {
    "schemaVersion": 1,
+   "id": "F85016F7-87F7-4C89-A840-D9445F2375A6",
+   "name": "코드 루프",
+   "modifiedAt": 0,
    "bpm": 90,
    "key": {
     "root": 0,
@@ -1907,6 +1954,7 @@
    },
    "tracks": [
     {
+     "id": "B5953DEB-F61B-4AEB-B771-F4AEB3028684",
      "role": "chords",
      "timbre": "piano",
      "bars": 4,
@@ -2012,6 +2060,9 @@
   "anyPad": false,
   "song": {
    "schemaVersion": 1,
+   "id": "4F281842-71CD-4E7D-BE3F-72A0C004B24C",
+   "name": "음계 안에서 치기",
+   "modifiedAt": 0,
    "bpm": 95,
    "key": {
     "root": 0,
@@ -2027,6 +2078,7 @@
    },
    "tracks": [
     {
+     "id": "750F3ED3-3569-4FF9-8BBF-E42ACB19C05A",
      "role": "melody",
      "timbre": "piano",
      "bars": 4,
@@ -2144,6 +2196,9 @@
   "anyPad": false,
   "song": {
    "schemaVersion": 1,
+   "id": "2FFB0233-7FDA-4A45-BC22-E310999ED4DE",
+   "name": "짧은 멜로디",
+   "modifiedAt": 0,
    "bpm": 95,
    "key": {
     "root": 0,
@@ -2158,19 +2213,12 @@
      {
       "root": 7,
       "quality": "major"
-     },
-     {
-      "root": 9,
-      "quality": "minor"
-     },
-     {
-      "root": 5,
-      "quality": "major"
      }
     ]
    },
    "tracks": [
     {
+     "id": "86F6769F-9014-4A1F-B291-2A07B14E4B8C",
      "role": "melody",
      "timbre": "piano",
      "bars": 2,
@@ -2245,6 +2293,9 @@
   "anyPad": false,
   "song": {
    "schemaVersion": 1,
+   "id": "2341B750-ED63-4058-AF3D-EBFD48FF9D73",
+   "name": "멜로디 루프 + AI",
+   "modifiedAt": 0,
    "bpm": 100,
    "key": {
     "root": 0,
@@ -2272,6 +2323,7 @@
    },
    "tracks": [
     {
+     "id": "16D96FEA-DF98-4794-9386-750B6023C16A",
      "role": "melody",
      "timbre": "piano",
      "bars": 4,
@@ -2380,6 +2432,9 @@
   "anyPad": false,
   "song": {
    "schemaVersion": 1,
+   "id": "B6B3BC09-20A5-445D-87C8-38B5C2D9BF28",
+   "name": "음색 바꿔보기",
+   "modifiedAt": 0,
    "bpm": 100,
    "key": {
     "root": 0,
@@ -2394,19 +2449,12 @@
      {
       "root": 7,
       "quality": "major"
-     },
-     {
-      "root": 9,
-      "quality": "minor"
-     },
-     {
-      "root": 5,
-      "quality": "major"
      }
     ]
    },
    "tracks": [
     {
+     "id": "AC56E6ED-E2A3-4C5E-844C-12D7829E21E2",
      "role": "melody",
      "timbre": "bell",
      "bars": 2,
@@ -2473,6 +2521,9 @@
   "anyPad": false,
   "song": {
    "schemaVersion": 1,
+   "id": "5EBB5AAB-A482-46C4-9D01-90D953F773D2",
+   "name": "루프 길이 섞기",
+   "modifiedAt": 0,
    "bpm": 105,
    "key": {
     "root": 0,
@@ -2500,6 +2551,7 @@
    },
    "tracks": [
     {
+     "id": "524FE129-CDAE-457A-84F1-4AF00AD5FC3C",
      "role": "drums",
      "timbre": "kit",
      "bars": 1,
@@ -2579,6 +2631,7 @@
      ]
     },
     {
+     "id": "1367E39A-1FFE-4085-9845-82FDA84E0C13",
      "role": "chords",
      "timbre": "piano",
      "bars": 4,
@@ -2695,6 +2748,9 @@
   "anyPad": false,
   "song": {
    "schemaVersion": 1,
+   "id": "C87FBA32-4CA8-4E64-BDCE-CDB8474167BA",
+   "name": "곡 완성",
+   "modifiedAt": 0,
    "bpm": 110,
    "key": {
     "root": 0,
@@ -2722,6 +2778,7 @@
    },
    "tracks": [
     {
+     "id": "F83D896B-DEB4-4C3F-901A-A33D1944B809",
      "role": "drums",
      "timbre": "kit",
      "bars": 2,

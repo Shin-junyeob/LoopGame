@@ -16,15 +16,16 @@ public enum Arranger {
             let a = order.firstIndex(of: song.tracks[$0].role)!, b = order.firstIndex(of: song.tracks[$1].role)!
             return a != b ? a > b : $0 > $1
         }
+        let ids = { (idx: [Int]) in idx.sorted().map { song.tracks[$0].id } }
         let outros = (1..<max(all.count, 1)).map { n in
-            Section(kind: .outro, bars: unit, tracks: Array(dropOrder.dropFirst(n)).sorted())
+            Section(kind: .outro, bars: unit, tracks: ids(Array(dropOrder.dropFirst(n))))
         }
 
         // seconds = bars × 240 / bpm  ->  need bars >= bpm / 4.
         let neededUnits = (song.bpm + 4 * unit - 1) / (4 * unit)
         let repeats = max(1, neededUnits - 1 - outros.count)
-        return [Section(kind: .intro, bars: unit, tracks: intro),
-                Section(kind: .main, bars: unit * repeats, tracks: all)] + outros
+        return [Section(kind: .intro, bars: unit, tracks: ids(intro)),
+                Section(kind: .main, bars: unit * repeats, tracks: ids(all))] + outros
     }
 
     public static func totalTicks(_ sections: [Section]) -> Int64 {

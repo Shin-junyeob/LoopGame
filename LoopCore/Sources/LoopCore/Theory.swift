@@ -18,11 +18,20 @@ public struct Chord: Codable, Equatable, Sendable {
     public var quality: Quality
     public init(root: Int, quality: Quality) { self.root = root; self.quality = quality }
 
-    public var toneMask: Int {
-        let steps = quality == .major ? [0, 4, 7] : [0, 3, 7]
-        return steps.reduce(0) { $0 | (1 << ((root + $1) % 12)) }
-    }
+    private var steps: [Int] { quality == .major ? [0, 4, 7] : [0, 3, 7] }
+    public var toneMask: Int { steps.reduce(0) { $0 | (1 << ((root + $1) % 12)) } }
     public func contains(_ pitch: Int) -> Bool { toneMask & (1 << (((pitch % 12) + 12) % 12)) != 0 }
+
+    /// Playback-only close-position triad (MIDI) below the melody register: the first of root position,
+    /// 1st, 2nd inversion whose lowest note fits in 53...60. Judgement still uses `root`.
+    public var voicing: [Int] {
+        for inv in 0..<3 {
+            let shape = Array(steps[inv...]) + steps[..<inv].map { $0 + 12 }
+            let bass = 53 + ((root + shape[0] - 53) % 12 + 12) % 12
+            if bass <= 60 { return shape.map { bass + $0 - shape[0] } }
+        }
+        return steps.map { 48 + root + $0 }  // unreachable: every triad has a tone in pitch classes 5...0
+    }
 }
 
 /// One chord per 4/4 bar, cycling.

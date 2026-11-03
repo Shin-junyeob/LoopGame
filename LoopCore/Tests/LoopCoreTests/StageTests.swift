@@ -44,7 +44,7 @@ private let chords1 = t(.chords, 1, [(0, 60)])
 private let edited: Song = {
     var s = song(drums, bass1, t(.melody, 4, [(0, 60)]), bpm: 110)
     s.sections = Arranger.arrange(s)
-    s.setTrack(2, on: true, inSection: 0)
+    s.setTrack(s.tracks[2].id, on: true, inSection: 0)
     return s
 }()
 private let tooShort: Song = {  // edited but under 60 s

@@ -31,6 +31,17 @@ private func judge(_ e: [Note], _ i: [InputHit], off: Double = 0) -> JudgeResult
         #expect(r.verdicts.filter { $0 != .miss }.count == 1)
     }
 
+    @Test func matchingKeepsBothNotesWhereGreedyNearestWouldDropOne() {
+        // bpm 125: 1 tick = 1 ms. Nearest-first would give 45 to the 0 ms note and miss the 90 ms note.
+        let e = [Note(tick: 0, pitch: 36), Note(tick: 90, pitch: 36)]
+        let r = Timing.judge(expected: e, inputs: [InputHit(ms: -50, pitch: 36), InputHit(ms: 45, pitch: 36)], bpm: 125)
+        #expect(r.verdicts == [.perfect, .perfect])
+    }
+
+    @Test func anyPitchIgnoresPad() {
+        #expect(Timing.judge(expected: notes(1), inputs: hits(1, delta: 0, pitch: 38), bpm: 120, anyPitch: true).verdicts == [.perfect])
+    }
+
     @Test func passThreshold() {
         // 70 of 100 hit -> pass; 69 of 100 -> fail
         func run(_ ok: Int) -> Bool {

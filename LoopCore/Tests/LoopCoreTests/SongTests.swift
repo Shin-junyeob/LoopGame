@@ -3,10 +3,12 @@ import Testing
 @testable import LoopCore
 
 private func validSong() -> Song {
-    Song(bpm: 100, tracks: [
+    var s = Song(name: "demo", bpm: 100, tracks: [
         LoopTrack(role: .drums, timbre: "kit", bars: 1, notes: [Note(tick: 0, pitch: 0), Note(tick: 960, pitch: 1)]),
         LoopTrack(role: .bass, bars: 4, notes: [Note(tick: 7679, duration: 1, pitch: 36)]),
-    ], sections: [Section(kind: .intro, bars: 4, tracks: [0, 1])])
+    ])
+    s.sections = [Section(kind: .intro, bars: 4, tracks: s.tracks.map(\.id))]
+    return s
 }
 
 @Test func songRoundTrips() throws {
@@ -18,19 +20,48 @@ private func validSong() -> Song {
 /// Format lock: this literal must keep decoding as schemaVersion 1.
 @Test func fixedV1JSONDecodes() throws {
     let json = """
-    {"schemaVersion":1,"bpm":90,"key":{"root":0,"mode":"major"},
+    {"schemaVersion":1,"id":"6F1C2A3B-0000-4000-8000-000000000001","name":"My Song","modifiedAt":0,
+     "bpm":90,"key":{"root":0,"mode":"major"},
      "progression":{"chords":[{"root":0,"quality":"major"},{"root":9,"quality":"minor"}]},
-     "tracks":[{"role":"bass","timbre":"default","bars":2,
+     "tracks":[{"id":"6F1C2A3B-0000-4000-8000-0000000000A1","role":"bass","timbre":"default","bars":2,
                 "notes":[{"tick":0,"duration":120,"pitch":36,"velocity":100}]}],
-     "sections":[{"kind":"main","bars":2,"tracks":[0]}]}
+     "sections":[{"kind":"main","bars":2,"tracks":["6F1C2A3B-0000-4000-8000-0000000000A1"]}]}
     """
     let song = try JSONDecoder().decode(Song.self, from: Data(json.utf8))
+    let trackID = UUID(uuidString: "6F1C2A3B-0000-4000-8000-0000000000A1")!
     #expect(song.schemaVersion == 1)
+    #expect(song.id == UUID(uuidString: "6F1C2A3B-0000-4000-8000-000000000001"))
+    #expect(song.name == "My Song" && song.modifiedAt == Date(timeIntervalSinceReferenceDate: 0))
     #expect(song.bpm == 90)
     #expect(song.progression.chords[1].quality == .minor)
-    #expect(song.tracks[0] == LoopTrack(role: .bass, bars: 2, notes: [Note(tick: 0, pitch: 36)]))
-    #expect(song.sections == [Section(kind: .main, bars: 2, tracks: [0])])
+    #expect(song.tracks[0] == LoopTrack(id: trackID, role: .bass, bars: 2, notes: [Note(tick: 0, pitch: 36)]))
+    #expect(song.sections == [Section(kind: .main, bars: 2, tracks: [trackID])])
     try song.validate()
+}
+
+@Test func invalidJSONFailsToDecode() throws {
+    var s = validSong()
+    s.bpm = 200
+    #expect(throws: SongError.bpmOutOfRange(200)) {
+        try JSONDecoder().decode(Song.self, from: JSONEncoder().encode(s))
+    }
+}
+
+@Test(arguments: [0, -4, 2, 6])
+func validationRejectsSectionBars(_ bars: Int) {
+    var s = validSong()  // longest loop: 4 bars
+    s.sections[0].bars = bars
+    #expect(throws: SongError.invalidSectionBars(section: 0)) { try s.validate() }
+}
+
+@Test func removeTrackDropsItFromEverySection() throws {
+    var s = validSong()
+    let drums = s.tracks[0].id, bass = s.tracks[1].id
+    s.sections.append(Section(kind: .main, bars: 8, tracks: [drums]))
+    s.removeTrack(id: drums)
+    #expect(s.tracks.map(\.id) == [bass])
+    #expect(s.sections.map(\.tracks) == [[bass], []])
+    try s.validate()
 }
 
 @Test func unknownSchemaVersionThrows() throws {
@@ -73,6 +104,6 @@ func validationRejectsNoteOutsideLoop(_ tick: Int64) {
 
 @Test func validationRejectsSectionPointingAtMissingTrack() {
     var s = validSong()
-    s.sections[0].tracks = [0, 2]
+    s.sections[0].tracks = [s.tracks[0].id, UUID()]
     #expect(throws: SongError.invalidSectionTrack(section: 0)) { try s.validate() }
 }

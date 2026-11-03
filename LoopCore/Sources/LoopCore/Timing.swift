@@ -26,23 +26,24 @@ public enum Timing {
         min(max(ms, -maxOffsetMs), maxOffsetMs)
     }
 
-    /// Greedy in note-time order: each note takes the nearest unused input with the same
-    /// pitch within goodMs (input time minus clamped offset). Wrong pitch never matches.
-    /// ponytail: greedy, not optimal assignment; fine for sparse loop notes.
+    /// Matches as many notes as possible per pitch: notes in time order each take the EARLIEST unused
+    /// same-pitch input within goodMs (input time minus clamped offset) — optimal for equal windows.
+    /// Each match is then judged by |Δ|. Wrong pitch never matches unless `anyPitch` (stage 1: any pad).
     public static func judge(expected: [Note], inputs: [InputHit], bpm: Double,
-                             userOffsetMs: Double = 0) -> JudgeResult {
+                             userOffsetMs: Double = 0, anyPitch: Bool = false) -> JudgeResult {
         let offset = clampOffset(userOffsetMs)
         var used = Set<Int>()
-        let verdicts: [Verdict] = expected.map { note in
-            let t = ms(tick: note.tick, bpm: bpm)
-            var best: (idx: Int, d: Double)?
-            for (i, h) in inputs.enumerated() where !used.contains(i) && h.pitch == note.pitch {
-                let d = abs(h.ms - offset - t)
-                if d <= goodMs, best == nil || d < best!.d { best = (i, d) }
+        var verdicts = [Verdict](repeating: .miss, count: expected.count)
+        for n in expected.indices.sorted(by: { expected[$0].tick < expected[$1].tick }) {
+            let t = ms(tick: expected[n].tick, bpm: bpm)
+            var best: (idx: Int, at: Double)?
+            for (i, h) in inputs.enumerated() where !used.contains(i) && (anyPitch || h.pitch == expected[n].pitch) {
+                let at = h.ms - offset
+                if abs(at - t) <= goodMs, best == nil || at < best!.at { best = (i, at) }
             }
-            guard let b = best else { return .miss }
+            guard let b = best else { continue }
             used.insert(b.idx)
-            return b.d <= perfectMs ? .perfect : .good
+            verdicts[n] = abs(b.at - t) <= perfectMs ? .perfect : .good
         }
         let hits = verdicts.filter { $0 != .miss }.count
         let passed = !expected.isEmpty && Double(hits) / Double(expected.count) >= passRatio
