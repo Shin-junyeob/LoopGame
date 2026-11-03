@@ -29,6 +29,7 @@ public enum Metrics {
         let o = gridError(original), c = gridError(candidate)
         return o == 0 ? (c == 0 ? 0 : .infinity) : c / o
     }
+    /// Rhythm-weighted similarity (plan-approved ±2 semitone tolerance); pitch correctness is enforced by the hard metrics.
     /// Greedy one-to-one onset matching within 120 ticks; pitched: |pitch diff| <= 2, drums: pad equal.
     public static func onsetF1(candidate: [Note], reference: [Note], drums: Bool,
                                tolerance: Int64 = sixteenth, pitchTolerance: Int = 2) -> Double {

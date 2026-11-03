@@ -6,22 +6,26 @@ Usage: uv run --project tools/train python tools/train/train.py
 2. Trigram model per role on train patterns, interpolated absolute discounting (D=0.75) over an
    add-one unigram; written ARPA-style (log p of seen grams + backoff weight per context, natural log).
 3. 300 jittered holdout items (75 per role) -> LoopCore/Tests/LoopCoreTests/Fixtures/holdout.json.
+4. Tuning set (never touches holdout): train patterns re-split 80/20 by group, models on the 80%,
+   75 jittered items per role from the 20% -> tools/train/val/ (separate RNG, so steps 1-3 are unchanged).
 Tokens (plan §3b): pitched "pos:interval" (16th in bar, scale-degree step from previous note; first
 note "^degree"), drums "pos:pad". Sequences padded with <s> <s> ... </s>.
 """
 import json
 import math
+import os
 import random
 from collections import Counter, defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SEED = 2026
-ORDER = 3
-D = 0.75
+ORDER = int(os.environ.get("NGRAM_ORDER", 3))
+D = float(os.environ.get("NGRAM_D", 0.75))
 ROLES = ("drums", "bass", "chords", "melody")
 ITEMS_PER_ROLE = 75
 MODEL_DIR = ROOT / "LoopCore/Sources/LoopCore/Resources/model"
+VAL_DIR = ROOT / "tools/train/val"
 FIXTURE = ROOT / "LoopCore/Tests/LoopCoreTests/Fixtures/holdout.json"
 STEPS = {"major": [0, 2, 4, 5, 7, 9, 11], "minor": [0, 2, 3, 5, 7, 8, 10]}
 
@@ -133,12 +137,25 @@ def jitter(p, rng):
     return sorted(out), round(sigma_ms, 1)
 
 
+def item(p, role, rng):
+    jit, sigma = jitter(p, rng)
+    return {"role": role, "patternId": p["id"], "key": p.get("key"), "progression": p.get("progression"),
+            "bpm": p["bpm"], "bars": p["bars"], "jitterSigmaMs": sigma, "original": p["notes"], "jittered": jit}
+
+
 def main():
     rng = random.Random(SEED)
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
-    items = []
+    items, val_items, vrng = [], [], random.Random(SEED + 1)
+    VAL_DIR.mkdir(parents=True, exist_ok=True)
     for role in ROLES:
         tr, ho = split(load(role), rng)
+        vtr, vho = split(tr, vrng)
+        vm = train([tokens(p) for p in vtr])
+        vm["role"] = role
+        (VAL_DIR / f"{role}.json").write_text(json.dumps(vm, separators=(",", ":"), sort_keys=True))
+        vorder = vrng.sample(vho, len(vho))
+        val_items += [item(vorder[k % len(vorder)], role, vrng) for k in range(ITEMS_PER_ROLE)]
         m = train([tokens(p) for p in tr])
         m["role"] = role
         path = MODEL_DIR / f"{role}.json"
@@ -153,12 +170,8 @@ def main():
         print(f"{role}: {len(tr)} train / {len(ho)} holdout patterns, vocab {len(m['vocab'])}, "
               f"{len(m['logp'])} grams, {size / 1024:.0f} KB, holdout ppl {math.exp(-sum(ho_ll) / len(ho_ll)):.1f}")
         order = rng.sample(ho, len(ho))
-        for k in range(ITEMS_PER_ROLE):
-            p = order[k % len(order)]
-            jit, sigma = jitter(p, rng)
-            items.append({"role": role, "patternId": p["id"], "key": p.get("key"), "progression": p.get("progression"),
-                          "bpm": p["bpm"], "bars": p["bars"], "jitterSigmaMs": sigma,
-                          "original": p["notes"], "jittered": jit})
+        items += [item(order[k % len(order)], role, rng) for k in range(ITEMS_PER_ROLE)]
+    (VAL_DIR / "val.json").write_text(json.dumps({"ppq": 480, "items": val_items}, separators=(",", ":")))
     FIXTURE.parent.mkdir(parents=True, exist_ok=True)
     FIXTURE.write_text(json.dumps({"ppq": 480, "noteFormat": "[tick, duration, pitch|pad, velocity]",
                                    "items": items}, separators=(",", ":")))

@@ -225,7 +225,7 @@ def make(role, rng):
         alt = CHORDS[rng.randrange(len(CHORDS))] if rng.random() < 0.3 else CHORDS[main]
         figs = [alt if b % 4 == 3 else CHORDS[main] for b in range(bars)]
     else:
-        scale = scale_pitches(tonic, mode, 57, 88)
+        scale = scale_pitches(tonic, mode, 60, 81)  # beginner-singable register
         form = rng.choice(FORMS[bars])
         pick = {f: rng.randrange(len(CELLS[{"A": "open", "M": "mid", "E": "end"}[f]])) for f in "AME"}
         group = f"melody/A{pick['A']}"
@@ -257,6 +257,8 @@ def main():
             k = json.dumps([p["key"], p["bars"], p["notes"]])
             if k in seen:
                 continue
+            if role == "melody" and max(n[2] for n in p["notes"]) - min(n[2] for n in p["notes"]) > 12:
+                continue  # keep each melody within an octave
             assert g3_ok(p["notes"], p["key"]["root"], p["key"]["mode"], p["progression"]), p
             seen.add(k)
             out.append({"id": f"{role}/{len(out):03d}", **p})

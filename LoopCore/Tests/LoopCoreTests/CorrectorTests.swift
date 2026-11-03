@@ -1,0 +1,64 @@
+import Foundation
+import Testing
+@testable import LoopCore
+
+private let cMaj = Key(root: 0, mode: .major)
+private func ctx(drums: Bool = false, bars: Int = 1) -> Corrector.Context {
+    Corrector.Context(drums: drums, key: cMaj, progression: .cGAmF, bars: bars)
+}
+private func n(_ t: Int64, _ p: Int) -> Note { Note(tick: t, pitch: p) }
+
+@Test func tokensMatchTrainPy() {
+    let c = ctx()
+    #expect(Corrector.degree(60, key: cMaj) == 35 && Corrector.degree(59, key: cMaj) == 34 && Corrector.degree(74, key: cMaj) == 43
+           && Corrector.degree(57, key: Key(root: 9, mode: .minor)) == 28)
+    #expect(Corrector.token(tick: 1920 + 240, pitch: 64, prevDegree: nil, context: c).0 == "2:^2")
+    #expect(Corrector.token(tick: 480, pitch: 62, prevDegree: 37, context: c).0 == "4:-1")
+    #expect(Corrector.token(tick: 480, pitch: 64, prevDegree: 37, context: c).0 == "4:+0")
+    #expect(Corrector.token(tick: 120, pitch: 3, prevDegree: nil, context: ctx(drums: true)).0 == "1:3")
+}
+
+@Test func outputsAlwaysSatisfyHardConstraints() throws {
+    let model = try NGramModel.load(role: "melody")
+    var rng = SystemRandomNumberGenerator()
+    for _ in 0..<20 {
+        let input = (0..<12).map { i in n(Int64(i) * 160 + Int64.random(in: -70...70, using: &rng), Int.random(in: 55...80, using: &rng)) }
+            .map { var x = $0; x.tick = max(0, x.tick); return x }
+        for c in Corrector.candidates(input, context: ctx(bars: 1), model: model) {
+            #expect(Metrics.allInScale(c.notes, key: cMaj))
+            #expect(Metrics.strongBeatsAreChordTones(c.notes, progression: .cGAmF))
+            #expect(Metrics.countChange(candidate: c.notes, original: input) <= 0.2)
+            #expect(c.notes.allSatisfy { $0.tick % Metrics.sixteenth == 0 })
+        }
+        for c in Corrector.suggest(input, context: ctx(bars: 1), model: model) {
+            #expect(Corrector.passes(c, input: input, context: ctx(bars: 1)))
+        }
+    }
+}
+
+@Test func emptyWhenNothingPasses() throws {
+    let model = try NGramModel.load(role: "melody")
+    #expect(Corrector.suggest([], context: ctx(), model: model).isEmpty)
+    // 10 copies of one note: only one survives the no-duplicate rule -> count change 90% -> no candidate
+    #expect(Corrector.suggest(Array(repeating: n(0, 60), count: 10), context: ctx(), model: model).isEmpty)
+    // a candidate under its F1 floor never passes the filter
+    let input = [n(0, 60), n(480, 62), n(960, 64)]
+    #expect(!Corrector.passes(.init(notes: [n(0, 60)], strength: .weak, f1: 0.5), input: input, context: ctx()))
+}
+
+@Test func ruleBaselineSnapsToGridAndMask() {
+    let out = Corrector.ruleBaseline([n(50, 61), n(130, 61), n(130, 61)], context: ctx())
+    #expect(out.map(\.tick) == [0, 120] && out[0].pitch == 60 && cMaj.contains(out[1].pitch))
+}
+
+@Test func melodyCorpusIsSingable() throws {
+    let url = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
+        .deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("data/corpus/melody/patterns.jsonl")
+    struct P: Decodable { let notes: [[Int]] }
+    let lines = try String(contentsOf: url, encoding: .utf8).split(separator: "\n")
+    #expect(lines.count >= 100)
+    for l in lines {
+        let ps = try JSONDecoder().decode(P.self, from: Data(l.utf8)).notes.map { $0[2] }
+        #expect(ps.allSatisfy { (60...81).contains($0) } && ps.max()! - ps.min()! <= 12)
+    }
+}

@@ -35,12 +35,14 @@ public struct Progression: Sendable {
     ])
     public static let ticksPerBar: Int64 = 4 * ppq
     public func chord(atTick tick: Int64) -> Chord {
-        chords[Int((tick / Self.ticksPerBar) % Int64(chords.count))]
+        let bar = tick >= 0 ? tick / Self.ticksPerBar : (tick + 1) / Self.ticksPerBar - 1  // floor
+        let n = Int64(chords.count)
+        return chords[Int((bar % n + n) % n)]
     }
 }
 
 /// Beats 1 and 3 of a 4/4 bar (exact onset).
 public func isStrongBeat(_ tick: Int64) -> Bool {
-    let r = tick % Progression.ticksPerBar
+    let r = (tick % Progression.ticksPerBar + Progression.ticksPerBar) % Progression.ticksPerBar
     return r == 0 || r == 2 * ppq
 }

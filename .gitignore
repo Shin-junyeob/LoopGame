@@ -10,3 +10,4 @@ LoopCore/.omc/
 .venv/
 __pycache__/
 data/raw/
+tools/train/val/

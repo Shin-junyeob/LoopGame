@@ -9,6 +9,7 @@ import Testing
 @Test func aMinorScale() {
     let k = Key(root: 9, mode: .minor)
     #expect(k.contains(64) && !k.contains(66)) // E in, F# out
+    #expect(!k.contains(68))                    // natural minor: no G# (harmonic-minor V)
 }
 @Test func chordTones() {
     let p = Progression.cGAmF
@@ -21,4 +22,9 @@ import Testing
 @Test func strongBeats() {
     #expect(isStrongBeat(0) && isStrongBeat(2 * ppq) && isStrongBeat(4 * ppq))
     #expect(!isStrongBeat(ppq) && !isStrongBeat(3 * ppq) && !isStrongBeat(120))
+}
+@Test func negativeTicksWrapToPreviousBar() {
+    #expect(Progression.cGAmF.chord(atTick: -1).root == 5)  // F, last bar
+    #expect(!isStrongBeat(-1))
+    #expect(isStrongBeat(-Progression.ticksPerBar))
 }
