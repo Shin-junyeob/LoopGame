@@ -14,7 +14,8 @@
         "`cd LoopCore && swift test` exits 0",
         "project.yml (XcodeGen) defines iOS 17 App target depending on local LoopCore package; `xcodegen generate && xcodebuild build -scheme App -destination 'platform=iOS Simulator,name=<from simctl>'` succeeds"
       ],
-      "passes": false
+      "passes": true,
+      "completionCriteriaRevision": 1
     },
     {
       "id": "US-002",
@@ -28,7 +29,8 @@
         "hostTime->frame conversion from an anchor (hostTime, sampleTime) with mach timebase numer/denom, latency term L and user offset; unit tested with fixed timebase values",
         "Re-anchor on sample-rate change 44.1k<->48k preserves musical tick position: tick position error <= 1 frame (test)"
       ],
-      "passes": false
+      "passes": true,
+      "completionCriteriaRevision": 1
     },
     {
       "id": "US-003",
@@ -42,7 +44,8 @@
         "Test reproducing order: render reads old pointer -> main exchange -> main reads C -> render callback end increments (C+1) -> old state NOT freed at this point",
         "Test: engine-stopped swap frees immediately"
       ],
-      "passes": false
+      "passes": true,
+      "completionCriteriaRevision": 1
     },
     {
       "id": "US-004",
@@ -55,7 +58,8 @@
         "Test: every loop start in rendered output lands exactly on Clock integer-formula frame",
         "Test: resampling a sample to a new rate yields length = original*newRate/oldRate +-1 frame"
       ],
-      "passes": false
+      "passes": true,
+      "completionCriteriaRevision": 1
     },
     {
       "id": "US-005",
@@ -69,7 +73,8 @@
         "Spike measurement screen: 500-tap in-app proxy latency (P50/P95/max), 8-track 60 s CPU average and underrun count, exportable log",
         "App builds for iOS Simulator; simulator run of the measurement screen does not crash (device numbers are the user's step)"
       ],
-      "passes": false
+      "passes": true,
+      "completionCriteriaRevision": 1
     },
     {
       "id": "US-006",
@@ -81,7 +86,8 @@
         "Metrics.swift: hard metrics (all pitched notes in scale, strong-beat notes are chord tones, note-count change <= 20%), statistical (grid error vs original ratio, onset F1 at 1/16 with pitch tolerance), drums use pitch-free metrics only",
         "Unit tests for each metric with hand-made positive and negative cases"
       ],
-      "passes": false
+      "passes": true,
+      "completionCriteriaRevision": 1
     },
     {
       "id": "US-007",
@@ -94,7 +100,8 @@
         "tools/train/train.py (uv): pattern-level 80/20 split BEFORE jitter, builds per-role n-gram weights to LoopCore/Sources/LoopCore/Resources/model/*.json, each file <= 1 MB",
         "Holdout eval set: holdout patterns x jitter (gaussian +-10..80 ms, 10% notes +-1..2 semitones, 5% drop/add) = 300 items, written to a fixture file"
       ],
-      "passes": false
+      "passes": true,
+      "completionCriteriaRevision": 1
     },
     {
       "id": "US-008",
@@ -106,7 +113,8 @@
         "Eval harness (swift test or executable) reports on 300 holdout: hard metrics pass rate, statistical pass rate, mean F1 weak/strong, no-suggestion rate, ablation vs rule baseline (grid snap + nearest scale) with paired bootstrap 95% CI, model size, per-call latency on Mac",
         "Go/no-go table written to .omc/reports/s2-ai.md against plan thresholds (hard 100%, stat >= 95% + mean F1 weak >= 0.85 strong >= 0.65, ablation CI lower bound > 0, no-suggestion <= 5%, model <= 1 MB); result reported honestly, thresholds not weakened"
       ],
-      "passes": false
+      "passes": true,
+      "completionCriteriaRevision": 1
     },
     {
       "id": "US-009",
@@ -119,7 +127,8 @@
         "S3 CloudKit listed as blocked on Apple Developer Program",
         "All work committed to git"
       ],
-      "passes": false
+      "passes": true,
+      "completionCriteriaRevision": 1
     }
   ]
 }

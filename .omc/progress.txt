@@ -5,3 +5,15 @@
 - Learning: SwiftPM resource bundle with only .gitkeep fails CodeSign ("bundle format unrecognized") → add resources only when real files exist
 - Learning: shell is zsh — use $? / $pipestatus, not ${PIPESTATUS}
 - Simulator name resolved via `xcrun simctl list devices available | grep -m1 -oE 'iPhone [^(]+'`
+## US-002/003/004 (pass) — Clock.swift, StateSwap.swift, Renderer.swift, CAtomic; 12 tests (37 cases) ~19s debug
+- swap cuts playing voices (click on edits) and voice pool full drops notes — marked ponytail:
+## US-006 (pass) — Note/Theory/Metrics; thresholds applied by caller
+- gitignore fix: **/.omc/state/ (nested LoopCore/.omc got committed in Phase 0, untracked in follow-up commit)
+## US-005 (pass) — AudioHost/SampleBank/TouchPadView + spike screen; build exit 0, sim launch OK (48k, 128 frames)
+- mHostTime semantics unconfirmed → loopback on device. Live hits play at next buffer start.
+## US-007 (pass) — corpus drums 851 (Groove CC BY), bass/chords/melody 130 each (Claude-authored, license self); reproducible training
+## Theory review (music21): G3 violations 0/12,153 notes. Negative-tick crash in Progression.chord(atTick:) + melody range 59..83/span 24 → delegated to US-008 agent (edit guard blocks orchestrator edits in shared checkout)
+## US-008 (pass) — Corrector B3b; holdout GO per AC11 (±2 semitone F1). Exact pitch: overall +0.006 CI[-0.001,0.014], chords only significant
+## US-009 (pass) — Recommender fixed-order baseline (G6), reports s1-audio.md / s2-ai.md
+## Architect: REJECTED (S2 report overstated gain) → fixed (exact-pitch column, generation ids, dropped hits) → APPROVED (eb35828)
+## Deslop: removed unused import in train.py; tests 39/39, build 0, training shasum identical
