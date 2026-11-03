@@ -1,8 +1,6 @@
 /// Auto song structure: intro (drums+bass) -> main (all tracks, repeated) -> outro (drop one track per section).
 /// Every section is a whole number of the longest loop; main repeats until the whole song is >= 60 s.
 public enum Arranger {
-    public static let minSeconds = 60
-
     public static func arrange(_ song: Song) -> [Section] {
         let all = Array(song.tracks.indices)
         guard let unit = song.tracks.map(\.bars).max() else { return [] }
