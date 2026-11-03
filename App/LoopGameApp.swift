@@ -16,7 +16,7 @@ struct SpikeView: View {
     let host: AudioHost
 
     var body: some View {
-        ScrollView {
+        VStack {
             VStack(alignment: .leading, spacing: 16) {
                 Text(String(format: "sampleRate %.0f Hz · ioBuffer %.2f ms · outputLatency %.2f ms",
                             host.sampleRate, host.ioBufferDuration * 1000, host.outputLatency * 1000))

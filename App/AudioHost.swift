@@ -43,7 +43,7 @@ final class AudioHost {
     @ObservationIgnored private let ticksPerSecond: Double
     @ObservationIgnored private var pads: [[Float]] = []
     @ObservationIgnored private var nextHitID: UInt64 = 0
-    @ObservationIgnored private var pending: [(id: UInt64, pad: Int, touchHost: UInt64)] = []
+    @ObservationIgnored private var pending: [(id: UInt64, pad: Int, touchHost: UInt64, deliveryMs: Double)] = []
     @ObservationIgnored private var hitRows: [String] = []
     @ObservationIgnored private var cpuStart: [UInt64] = []
     @ObservationIgnored private var cpuEnd = Date.distantPast
@@ -171,7 +171,8 @@ final class AudioHost {
         let id = nextHitID
         nextHitID += 1
         guard catomic_live_push(liveQueue, id << 8 | UInt64(pad)) else { return note("live queue full, hit dropped") }
-        pending.append((id, pad, UInt64(touchTimestamp * ticksPerSecond)))
+        let touchHost = UInt64(touchTimestamp * ticksPerSecond)
+        pending.append((id, pad, touchHost, Double(mach_absolute_time() &- touchHost) / ticksPerSecond * 1000))
     }
 
     /// Proxy latency = (output host time of the buffer the hit was voiced in) - (touch host time), where
@@ -188,7 +189,7 @@ final class AudioHost {
             let outputHost = anchorHost + (Double(frame - anchorPosition) / sampleRate + outputLatency) * ticksPerSecond
             let ms = (outputHost - Double(hit.touchHost)) / ticksPerSecond * 1000
             latenciesMs.append(ms)
-            hitRows.append(String(format: "%llu,%d,%.3f", hit.id, hit.pad, ms))
+            hitRows.append(String(format: "%llu,%d,%.3f,%.3f", hit.id, hit.pad, ms, hit.deliveryMs))
             return true
         }
     }
@@ -238,6 +239,6 @@ final class AudioHost {
     }
 
     var exportText: String {
-        (log + ["", "hit_id,pad,proxy_latency_ms"] + hitRows).joined(separator: "\n")
+        (log + ["", "hit_id,pad,proxy_latency_ms,touch_delivery_ms"] + hitRows).joined(separator: "\n")
     }
 }
