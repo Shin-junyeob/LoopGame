@@ -1,0 +1,7 @@
+# ralph progress — Phase 0~1
+## US-001 (pass, 2026-11-03)
+- git init, .gitignore, LoopCore package (CAtomic + LoopCore + Swift Testing), project.yml (XcodeGen 2.46.0), App/LoopGameApp.swift
+- swift test pass; xcodebuild App on "iPhone 18 Pro" simulator exit 0
+- Learning: SwiftPM resource bundle with only .gitkeep fails CodeSign ("bundle format unrecognized") → add resources only when real files exist
+- Learning: shell is zsh — use $? / $pipestatus, not ${PIPESTATUS}
+- Simulator name resolved via `xcrun simctl list devices available | grep -m1 -oE 'iPhone [^(]+'`
