@@ -7,7 +7,7 @@ let package = Package(
     products: [.library(name: "LoopCore", targets: ["LoopCore"])],
     targets: [
         .target(name: "CAtomic"),
-        .target(name: "LoopCore", dependencies: ["CAtomic"]),
-        .testTarget(name: "LoopCoreTests", dependencies: ["LoopCore"]),
+        .target(name: "LoopCore", dependencies: ["CAtomic"], resources: [.process("Resources")]),
+        .testTarget(name: "LoopCoreTests", dependencies: ["LoopCore"], exclude: ["Fixtures"]),
     ]
 )
