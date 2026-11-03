@@ -1,16 +1,32 @@
 # S1 오디오 엔진 Go/No-Go 보고
 
-기준: 계획서 §2 G2(지연 P95 ≤ 20 ms), G4(기기 iPhone 15 Pro / iPad Air 5), §6 S1 Go 항목.
+기준: 계획서 §2 G2(2026-11-03 개정: 앱이 쓰는 시간 P95 ≤ 10 ms, 원래는 전체 P95 ≤ 20 ms), G4(기기 iPhone 15 Pro / iPad Air 5), §6 S1 Go 항목.
 
 | # | 항목 | 판정 | 근거 |
 |---|---|---|---|
 | (1) | 분할 렌더 vs 한 번에 렌더 비트 동일 (10분 × 8트랙 × BPM 60/70/97/160) | **GO** | `RendererTests.splitRenderIsBitIdenticalToOneShot(bpm:)` 4 cases 통과 (19.0 s) |
 | (2) | hostTime→frame, 44.1↔48k 재앵커, 리샘플 길이 | **GO** | `ClockTests.hostTimeToFrameAppleSiliconTimebase`, `hostTimeToFrameNanosecondTimebase`, `reanchorPreservesTickPositionWithinOneFrame(bpm:)` 4 cases, `loopStartsMatchOracleFor10Minutes(bpm:sampleRate:)` 8 cases, `everyTickFrameIsExactFloor` 8 cases, `noOverflowAt10MinBpm160At48k`; `RendererTests.loopStartsLandOnClockFrames(bpm:)` 4 cases, `resampleLength(rates:length:)` 15 cases 전부 통과 |
 | (3') | 에포크 회수 경합 | **GO** | `AtomicSwapTests.oldStateFreedOnlyAtEpochCPlus2`, `renderReadingOldPointerAcrossSwapKeepsItAlive`, `engineStoppedSwapFreesImmediately` 통과 |
-| (3) | 탭→소리 지연 P95 ≤ 20 ms (실기기) | **사용자 측정 대기** | 아래 절차 A |
-| (4) | 8트랙 60초 CPU < 30%, 언더런 0 (실기기) | **사용자 측정 대기** | 아래 절차 B |
+| (3) | 앱이 쓰는 지연 P95 ≤ 10 ms (실기기, G2 개정) | **iPhone 15 Pro: GO** (P95 7.79 ms) / iPad Air 5: 대기 | 아래 실측 결과 |
+| (4) | 8트랙 60초 CPU < 30%, 언더런 0 (실기기) | **iPhone 15 Pro: GO** (11.79%, 언더런 0) / iPad Air 5: 대기 | 아래 실측 결과 |
 
 실행 출력(`cd LoopCore && swift test`, 2026-11-03): `Test run with 37 tests in 0 suites passed after 19.007 seconds.` / `Test Suite 'All tests' passed`
+
+## 실측 결과 (iPhone 15 Pro, iOS 27.0.1, 2026-11-03)
+
+설정: 48 kHz, ioBuffer 128프레임(2.67 ms), outputLatency 15.77 ms(기본 스피커).
+
+| 회차 | 구간 | n | P50 | P95 | max |
+|---|---|---|---|---|---|
+| 1차 | 전체 프록시(터치→스피커) | 629 | 127.5 | 167.3 | 197.3 |
+| 2차 | 전체 프록시 | 635 | 42.9 | 50.3 | 53.0 |
+| 2차 | 터치 전달(UITouch.timestamp→touchesBegan) | 635 | 20.1 | 27.3 | 31.5 |
+| 2차 | **앱이 쓰는 시간**(전체−전달−outputLatency) | 635 | 6.57 | **7.79** | 7.94 |
+
+- 1차 원인: 패드가 `ScrollView` 안에 있어 `delaysContentTouches`가 touchesBegan을 늦춤. 패드를 밖으로 빼자 2차에서 전체 P95 167 → 50 ms (`7d67ad6`).
+- iOS 몫(터치 전달 최소 13.5 ms + 스피커 15.8 ms)만으로 20 ms를 넘으므로 원래 G2는 달성 불가 → 사용자 결정으로 G2를 앱 몫 기준으로 개정.
+- CPU(1차 로그): 8트랙 60초 평균 렌더 CPU 11.79%(버퍼 시간 대비), 언더런 0, 콜백 22,519회.
+- 루프백(선택)은 아직 안 함. 앱 몫은 프록시 계산이라 `mHostTime` 의미가 틀리면 함께 틀림 — 체감상 늦다면 루프백으로 확인.
 
 ## 사용자 측정 절차
 
