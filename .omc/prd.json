@@ -1,59 +1,65 @@
 {
   "project": "music-loop-game",
-  "branchName": "worktree-phase2-core",
-  "description": "Phase 2 (core logic in LoopCore) of .omc/plans/music-loop-game-plan.md §6. Gates G1-G8 in §2. No UI (Phase 3).",
+  "branchName": "worktree-phase3-app",
+  "description": "Phase 3 (app: free play, loop station, AI compare, arrange, save/export, credits) of .omc/plans/music-loop-game-plan.md §6. Gates G1-G8 (§2), esp. G8 pad-first UI + keyboard toggle. Spec AC1-6, 8-13, 18-19. No stages UI (Phase 4), no CloudKit (Phase 5/G7). Device feel-testing is the user's step.",
   "userStories": [
     {
-      "id": "US-201", "title": "Song model: Codable + schemaVersion + validation", "priority": 1, "governingCriteriaRevision": 1,
+      "id": "US-301", "title": "Instrument sounds: 4 roles x 2-3 timbres, license-tracked", "priority": 1, "governingCriteriaRevision": 1,
       "acceptanceCriteria": [
-        "LoopCore/Sources/LoopCore/Song.swift: Song(schemaVersion, bpm, key, progression, tracks, sections) and LoopTrack(role drums/bass/chords/melody, timbre, bars, notes as Note in ticks); Codable",
-        "JSON round-trip test: encode -> decode -> equal, and a fixed JSON literal with schemaVersion 1 decodes (format lock)",
-        "Validation rejects: >8 tracks, BPM outside 60...160, bars not in {1,2,4,8}, notes outside the track's loop length; accepts valid songs (tests for each)",
-        "Unknown future schemaVersion is reported as an error, not a crash (test)"
+        "Drums (kick, snare, closed hat, open hat, tom, crash), bass, keys/chords, lead: each role has 2-3 timbres; sources are CC0 sample libraries with verified license files, or sounds synthesized in code (license self); no CC-BY-NC/ND or unclear sources",
+        "Every bundled audio file has an entry in licenses.json and LicenseTests covers App/Resources/Samples (test fails on a missing entry)",
+        "Pitched timbres play any MIDI note in their role's range (bass 36-55, keys 53-72, lead 60-81) via resampling or multi-sample mapping; unit test for the note->sample/rate mapping",
+        "Total bundled audio <= 30 MB"
       ],
       "passes": true, "completionCriteriaRevision": 1
     },
     {
-      "id": "US-202", "title": "Timing: follow-along judgement with offset calibration", "priority": 2, "governingCriteriaRevision": 2, "completionCriteriaRevision": 2,
-      "criterionAmendments": [
-        {
-          "kind": "replaced",
-          "original": "Applying the offset shifts judgement (test: constant 80 ms late input passes after calibration, fails before)",
-          "replacement": "Applying the offset shifts judgement (test: constant 120 ms late input passes after calibration, fails before)",
-          "reason": "80 ms is inside the Good window (<= 100 ms), so an 80 ms late input already passes before calibration; the original criterion could not distinguish calibrated from uncalibrated",
-          "evidence": "Plan §5: Good = |d| <= 100 ms and 80 < 100. TimingTests uses 120 ms: fails before calibration, all Perfect after (swift test --filter TimingTests: 7 passed)",
-          "authority": "ralph session b1bb14c3 (phase2)",
-          "timestamp": "2026-11-03T13:50:00Z"
-        }
-      ],
+      "id": "US-302", "title": "Free play screen: pad instrument (G8) + keyboard toggle", "priority": 2, "governingCriteriaRevision": 1,
       "acceptanceCriteria": [
-        "LoopCore/Sources/LoopCore/Timing.swift: judge(expected notes, input hits(ms, pad/pitch), bpm, userOffsetMs) -> per-note Perfect (|d| <= 50 ms) / Good (<= 100 ms) / Miss, wrong pad or pitch = Miss, each input matches at most one note and each note at most one input",
-        "passed = (Perfect+Good)/expected >= 0.70 (boundary tests at 0.69/0.70 and 50/51 ms, 100/101 ms)",
-        "Offset calibration from stage 1 taps (median of deltas) clamped to +-150 ms; values beyond are clamped (tests at 149/150/151 and negative)",
-        "Applying the offset shifts judgement (test: constant 120 ms late input passes after calibration, fails before)"
+        "Instrument + timbre picker, BPM 60-160 control, metronome toggle (AC1)",
+        "Drums: kit pad grid; bass/melody: pads holding only current-key scale notes (no out-of-scale pad); chords: one pad per diatonic chord of the progression, sounding Chord.voicing (G8)",
+        "Settings toggle switches pitched instruments to a 12-note keyboard (G8)",
+        "Pads use the UIKit touch path (UITouch.timestamp) and are NOT inside a ScrollView; multitouch",
+        "iPhone portrait and iPad regular-width layouts (AC3); simulator screenshots of both saved under .omc/reports/screens/"
       ],
-      "passes": true
+      "passes": false
     },
     {
-      "id": "US-203", "title": "Arranger: auto intro/main/outro >= 60 s with per-section edits", "priority": 3, "governingCriteriaRevision": 1,
+      "id": "US-303", "title": "Loop station: record, loop, layer up to 8 tracks", "priority": 3, "governingCriteriaRevision": 1,
       "acceptanceCriteria": [
-        "LoopCore/Sources/LoopCore/Arranger.swift: arrange(song) -> sections: intro (drums+bass among tracks) -> main (all tracks, repeated) -> outro (remove one track per section until one left); repeat count chosen so total duration >= 60 s at the song BPM and longest loop length",
-        "Tests at BPM 60, 110, 160 and with 1, 2, 4, 8 tracks: total >= 60 s, every section length is a whole multiple of the longest loop, intro/outro composition as specified; songs without drums or bass fall back to first available tracks (test)",
-        "Section track toggle (AC9): setting a track on/off in a section changes only that section; arrangement stays valid (test)",
-        "Arrangement total frame length computed via Clock equals expected (test, no audio)"
+        "Record a track with 1-bar count-in at the song BPM, chosen length 1/2/4/8 bars (AC5); recorded hits stored as Notes in ticks relative to loop start using the clock mapping (touch time -> frame -> tick)",
+        "Tracks loop sample-accurately through the existing Renderer (RenderState built from Song), up to 8 simultaneous (AC6); mute and delete per track",
+        "Unit test (LoopCore or app logic module): hits at known host times convert to expected ticks at BPM 60/110/160 within 1 tick",
+        "Next-instrument hint shown using Recommender (fixed order per G6) (AC12)"
       ],
-      "passes": true, "completionCriteriaRevision": 1
+      "passes": false
     },
     {
-      "id": "US-204", "title": "Stages: stages.json (G5 table) + build-task predicates", "priority": 4, "governingCriteriaRevision": 1,
+      "id": "US-304", "title": "AI compare after recording (AC10-13)", "priority": 4, "governingCriteriaRevision": 1,
       "acceptanceCriteria": [
-        "LoopCore/Sources/LoopCore/Resources/stages.json encodes the 18 stages of plan §5 (name, follow-along pattern notes, BPM, build-task predicate id + params); entry in licenses.json (license self); LicenseTests pass",
-        "Stages.swift loads all 18 in order with BPMs as in §5 (test checks every stage's BPM and name)",
-        "Each of the 18 build-task predicates has a passing and a failing Song fixture in tests",
-        "Pitched follow-along patterns are G3-valid (C major scale; strong-beat notes chord tones) — checked with Metrics in a test",
-        "Free creation is not gated by stage progress: no API locks it (G5 decision 'free creation open from start')"
+        "After each recording, run Corrector on the take and show Compare: original + 1-2 passing candidates (or original + 'no suggestion' notice); user can audition each and pick one to keep (AC10)",
+        "Never shows an unfiltered candidate; works offline (no network APIs used) (AC11, AC13)",
+        "Corrector call happens off the main thread and the UI stays responsive; unit test that the compare model exposes only Metrics-passing candidates"
       ],
-      "passes": true, "completionCriteriaRevision": 1
+      "passes": false
+    },
+    {
+      "id": "US-305", "title": "Arrange, save/load, export audio (AC8-9, 18-19)", "priority": 5, "governingCriteriaRevision": 1,
+      "acceptanceCriteria": [
+        "Arrange screen shows Arranger sections (intro/main/outro) and lets the user toggle tracks per section (AC8-9); song total shown and >= 60 s",
+        "Songs saved as JSON (Song Codable) in Application Support, listed, reopened and edited (AC18); round-trip test through the file layer",
+        "Export renders offline with the same Renderer to m4a (AAC) and wav, shared via ShareLink (AC19); test: exported buffer length equals arrangement frames (m4a file length within +-2112 frames)"
+      ],
+      "passes": false
+    },
+    {
+      "id": "US-306", "title": "Credits + app shell", "priority": 6, "governingCriteriaRevision": 1,
+      "acceptanceCriteria": [
+        "Credits screen lists every CC-BY item from licenses.json with attribution (Groove MIDI etc.) (AC4)",
+        "App shell: home (new song / my songs / free play), navigation between screens; S1 spike screen removed or moved behind a debug-only entry",
+        "App builds for simulator and device (id of connected iPhone if present) with no errors; LoopCore swift test passes"
+      ],
+      "passes": false
     }
   ]
 }

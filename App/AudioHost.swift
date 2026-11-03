@@ -86,7 +86,7 @@ final class AudioHost {
     // MARK: Engine
 
     /// New engine at the current hardware rate. Musical position is preserved (Clock.rescale) and,
-    /// if the rate changed, the SampleBank is resampled and a new RenderState swapped in.
+    /// if the rate changed, the SampleBank is rebuilt at it and a new RenderState swapped in.
     private func rebuild(reason: String) {
         engine.stop()  // render thread is quiet from here until start()
         engine = AVAudioEngine()
@@ -97,7 +97,7 @@ final class AudioHost {
                 renderer.pointee.position = Clock.rescale(frame: renderer.pointee.position, from: Int64(sampleRate), to: Int64(rate))
             }
             sampleRate = rate
-            pads = SampleBank.samples(at: rate)
+            pads = SampleBank.buffers(role: .drums, timbre: "kit", rate: rate)
             swapState()
         }
         stats[Field.nextSample] = .max  // timeline restarts; don't count it as a glitch

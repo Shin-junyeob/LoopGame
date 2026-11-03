@@ -10,7 +10,11 @@ targets:
   App:
     type: application
     platform: iOS
-    sources: [App]
+    sources:
+      - path: App
+        excludes: ["Resources/**"]
+      - path: App/Resources/Samples  # folder reference: keeps <role>/<timbre>/<root>.caf paths in the bundle
+        type: folder
     dependencies:
       - package: LoopCore
     settings:

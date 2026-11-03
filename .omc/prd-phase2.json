@@ -1,0 +1,59 @@
+{
+  "project": "music-loop-game",
+  "branchName": "worktree-phase2-core",
+  "description": "Phase 2 (core logic in LoopCore) of .omc/plans/music-loop-game-plan.md §6. Gates G1-G8 in §2. No UI (Phase 3).",
+  "userStories": [
+    {
+      "id": "US-201", "title": "Song model: Codable + schemaVersion + validation", "priority": 1, "governingCriteriaRevision": 1,
+      "acceptanceCriteria": [
+        "LoopCore/Sources/LoopCore/Song.swift: Song(schemaVersion, bpm, key, progression, tracks, sections) and LoopTrack(role drums/bass/chords/melody, timbre, bars, notes as Note in ticks); Codable",
+        "JSON round-trip test: encode -> decode -> equal, and a fixed JSON literal with schemaVersion 1 decodes (format lock)",
+        "Validation rejects: >8 tracks, BPM outside 60...160, bars not in {1,2,4,8}, notes outside the track's loop length; accepts valid songs (tests for each)",
+        "Unknown future schemaVersion is reported as an error, not a crash (test)"
+      ],
+      "passes": true, "completionCriteriaRevision": 1
+    },
+    {
+      "id": "US-202", "title": "Timing: follow-along judgement with offset calibration", "priority": 2, "governingCriteriaRevision": 2, "completionCriteriaRevision": 2,
+      "criterionAmendments": [
+        {
+          "kind": "replaced",
+          "original": "Applying the offset shifts judgement (test: constant 80 ms late input passes after calibration, fails before)",
+          "replacement": "Applying the offset shifts judgement (test: constant 120 ms late input passes after calibration, fails before)",
+          "reason": "80 ms is inside the Good window (<= 100 ms), so an 80 ms late input already passes before calibration; the original criterion could not distinguish calibrated from uncalibrated",
+          "evidence": "Plan §5: Good = |d| <= 100 ms and 80 < 100. TimingTests uses 120 ms: fails before calibration, all Perfect after (swift test --filter TimingTests: 7 passed)",
+          "authority": "ralph session b1bb14c3 (phase2)",
+          "timestamp": "2026-11-03T13:50:00Z"
+        }
+      ],
+      "acceptanceCriteria": [
+        "LoopCore/Sources/LoopCore/Timing.swift: judge(expected notes, input hits(ms, pad/pitch), bpm, userOffsetMs) -> per-note Perfect (|d| <= 50 ms) / Good (<= 100 ms) / Miss, wrong pad or pitch = Miss, each input matches at most one note and each note at most one input",
+        "passed = (Perfect+Good)/expected >= 0.70 (boundary tests at 0.69/0.70 and 50/51 ms, 100/101 ms)",
+        "Offset calibration from stage 1 taps (median of deltas) clamped to +-150 ms; values beyond are clamped (tests at 149/150/151 and negative)",
+        "Applying the offset shifts judgement (test: constant 120 ms late input passes after calibration, fails before)"
+      ],
+      "passes": true
+    },
+    {
+      "id": "US-203", "title": "Arranger: auto intro/main/outro >= 60 s with per-section edits", "priority": 3, "governingCriteriaRevision": 1,
+      "acceptanceCriteria": [
+        "LoopCore/Sources/LoopCore/Arranger.swift: arrange(song) -> sections: intro (drums+bass among tracks) -> main (all tracks, repeated) -> outro (remove one track per section until one left); repeat count chosen so total duration >= 60 s at the song BPM and longest loop length",
+        "Tests at BPM 60, 110, 160 and with 1, 2, 4, 8 tracks: total >= 60 s, every section length is a whole multiple of the longest loop, intro/outro composition as specified; songs without drums or bass fall back to first available tracks (test)",
+        "Section track toggle (AC9): setting a track on/off in a section changes only that section; arrangement stays valid (test)",
+        "Arrangement total frame length computed via Clock equals expected (test, no audio)"
+      ],
+      "passes": true, "completionCriteriaRevision": 1
+    },
+    {
+      "id": "US-204", "title": "Stages: stages.json (G5 table) + build-task predicates", "priority": 4, "governingCriteriaRevision": 1,
+      "acceptanceCriteria": [
+        "LoopCore/Sources/LoopCore/Resources/stages.json encodes the 18 stages of plan §5 (name, follow-along pattern notes, BPM, build-task predicate id + params); entry in licenses.json (license self); LicenseTests pass",
+        "Stages.swift loads all 18 in order with BPMs as in §5 (test checks every stage's BPM and name)",
+        "Each of the 18 build-task predicates has a passing and a failing Song fixture in tests",
+        "Pitched follow-along patterns are G3-valid (C major scale; strong-beat notes chord tones) — checked with Metrics in a test",
+        "Free creation is not gated by stage progress: no API locks it (G5 decision 'free creation open from start')"
+      ],
+      "passes": true, "completionCriteriaRevision": 1
+    }
+  ]
+}

@@ -10,7 +10,7 @@ private struct LicenseEntry: Decodable {
     let attribution: String?
 }
 
-/// Every corpus/resource file needs a licenses.json entry with an allowed license (plan §3 principle 5).
+/// Every corpus/resource/bundled-sample file needs a licenses.json entry with an allowed license (plan §3 principle 5).
 @Test func everyDataFileIsLicensed() throws {
     let entries = try JSONDecoder().decode(
         [LicenseEntry].self, from: Data(contentsOf: repoRoot.appendingPathComponent("licenses.json")))
@@ -24,7 +24,7 @@ private struct LicenseEntry: Decodable {
     }
 
     var walked = 0
-    for dir in ["data/corpus", "LoopCore/Sources/LoopCore/Resources"] {
+    for dir in ["data/corpus", "LoopCore/Sources/LoopCore/Resources", "App/Resources/Samples"] {
         let base = repoRoot.appendingPathComponent(dir)
         let files = FileManager.default.enumerator(at: base, includingPropertiesForKeys: [.isRegularFileKey])!
         for case let url as URL in files where url.lastPathComponent != ".DS_Store" {
@@ -34,5 +34,5 @@ private struct LicenseEntry: Decodable {
             walked += 1
         }
     }
-    #expect(walked >= 8)
+    #expect(walked >= 27)
 }
