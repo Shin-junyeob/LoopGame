@@ -39,6 +39,7 @@ ADR(§9)은 G1~G3 답에 따라 갈라진다.
 - **G4 → iPhone 15 Pro(A17 Pro), iPad Air 5세대(M1)**. 둘 다 최신급이라 iOS 17 최저 사양 기기(XS/11급) 성능은 검증 안 됨 → 리스크로 수용
 - **G5 → §5 표 초안 그대로 승인**
 - **G6 → Recommender가 S2에 실패하거나 평가 불가(n<30)면 고정 순서 규칙으로 v1 출시**, 갤러리에 올라온 곡의 트랙 추가 순서로 데이터를 모아 업데이트 때 모델로 교체. 보정 AI(B3b)는 v1에 그대로 출시
+- **G7 비용 (2026-11-03) → 무료로 개발, Apple Developer Program($99/년) 결제는 출시 직전에 결정.** Phase 0~4는 무료 개인 팀(내 기기 설치, 7일마다 재서명, 기기 3대·기기당 앱 3개)으로 진행. CloudKit·Game Center가 필요한 S3·Phase 5는 결제 결정 뒤로 이동. 결제하지 않기로 하면 갤러리·랭킹·Game Center 없이 개인 기기용으로 남김
 
 ## 3. RALPLAN-DR 요약
 
@@ -183,7 +184,7 @@ game/
   - 모델 파일 ≤ 1MB, 보정 1회(후보 5개+필터) ≤ 50ms(G4 최저 기기)
 - **No-go**: n-gram 차수·스무딩 조정 → 그래도 실패면 B1 시도 여부를 사용자에게 확인
 
-**S3 CloudKit 설계 + Dashboard 스파이크** (Developer Program 필요, Phase 3 전 완료)
+**S3 CloudKit 설계 + Dashboard 스파이크** (Developer Program 필요 — G7에 따라 **Phase 5 시작 전, 결제 결정 뒤**로 이동. Phase 3의 `Song` JSON `schemaVersion`은 그대로 넣어 둠)
 - 레코드:
   - `SharedSong`(title, nickname, audio CKAsset m4a, song JSON CKAsset): 작성자만 쓰기
   - `SongStats`(songRef, likeCount): 인증 사용자 쓰기. 랭킹 정렬용일 뿐이며 위조 가능성은 v1에서 수용
@@ -216,6 +217,7 @@ game/
 - **수락**: AC14~17
 
 ### Phase 5 — 공유 · 계정 · 모더레이션 · 출시 준비
+- **진입 조건(G7)**: 사용자가 Apple Developer Program 결제를 결정. 결정 후 S3 스파이크 → 아래 구현
 - S3 설계대로 구현. 랭킹 = `likeCount` 내림차순 상위 100개를 받아 숨김·차단 작성자를 걸러냄. 걸러진 만큼 목록이 100개보다 짧아질 수 있음(v1 수용, 개수가 중요해지면 다음 페이지를 이어 받음)
 - 차단: 작성자 `userRecordID`를 로컬 저장. 본인 곡 삭제: `SharedSong`+`SongStats` 삭제, Like/Report는 cascade 또는 S3 결과에 따른 존재 참조 필터
 - 업로드 하루 5곡 제한(**클라이언트 전용**, 우회 가능함을 인지)
@@ -317,6 +319,9 @@ game/
 - 리스크: iCloud 계정 3개로 숨김 가능(v1 수용, 신고 푸시 검토로 완화)
 - `songRef IN` 조회는 100개씩 나눠서
 - ADR을 G1~G6 조건부로 정리, 합의 라인 추가
+
+### 비용 결정 반영 (2026-11-03)
+- G7 추가: 무료 개발, $99 결제는 출시 직전 결정. S3 CloudKit 스파이크를 Phase 3 전 → Phase 5 진입 시(결제 후)로 이동
 
 ### 게이트 결정 반영 (2026-11-03)
 - G1~G6 사용자 답을 §2 "게이트 결정"과 ADR에 반영 (B3b / P95 / 음계+강박 코드톤 / iPhone 15 Pro·iPad Air 5 / 표 승인 / 고정 순서 v1 출시)
