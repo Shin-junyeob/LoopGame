@@ -1,3 +1,4 @@
+import CAtomic
 import Foundation
 import Testing
 @testable import LoopCore
@@ -82,4 +83,25 @@ func resampleLength(rates: (Int, Int), length: Int) {
     let exact = Double(length) * Double(rates.1) / Double(rates.0)
     #expect(abs(Double(y.count) - exact) <= 1)
     if rates.0 == rates.1 { #expect(y == x) }
+}
+
+@Test func liveHitIsVoicedAtNextBufferStartAndReported() {
+    let swap = StateSwap(free: RenderState.free)
+    swap.swap(to: RenderState(sampleRate: sr, bpm: 120, tracks: [], pads: [[0.5, 0.25, 0.125]]).boxed(), engineRunning: false)
+    let queue = catomic_live_create()
+    defer { catomic_live_destroy(queue) }
+    var renderer = Renderer(slot: swap.slot)
+    renderer.live = queue
+    defer { renderer.deallocate() }
+    let out = UnsafeMutablePointer<Float>.allocate(capacity: 4)
+    defer { out.deallocate() }
+    renderer.render(into: out, frameCount: 4)
+    #expect((0..<4).allSatisfy { out[$0] == 0 })
+    #expect(catomic_live_push(queue, 7 << 8 | 0))
+    #expect(catomic_live_push(queue, 8 << 8 | 5))  // unknown pad: reported, not voiced
+    #expect(catomic_live_result(queue, 7) == -1)
+    renderer.render(into: out, frameCount: 4)
+    #expect(Array(UnsafeBufferPointer(start: out, count: 4)) == [0.5, 0.25, 0.125, 0])
+    #expect(catomic_live_result(queue, 7) == 4)
+    #expect(catomic_live_result(queue, 8) == 4)
 }

@@ -13,8 +13,11 @@ public struct RenderState {
     public let sampleRate: Int64
     public let bpm: Int64
     public let tracks: UnsafeMutableBufferPointer<Track>
+    /// One-shot samples for live hits (pad index = position).
+    public let pads: UnsafeMutableBufferPointer<UnsafeMutableBufferPointer<Float>>
 
-    public init(sampleRate: Int64, bpm: Int64, tracks specs: [(samples: [Float], events: [Int64], bars: Int64, gain: Float)]) {
+    public init(sampleRate: Int64, bpm: Int64, tracks specs: [(samples: [Float], events: [Int64], bars: Int64, gain: Float)],
+                pads padSamples: [[Float]] = []) {
         precondition(specs.count <= Self.maxTracks)
         self.sampleRate = sampleRate
         self.bpm = bpm
@@ -29,6 +32,12 @@ public struct RenderState {
             _ = events.initialize(from: spec.events)
             tracks.initializeElement(at: i, to: Track(samples: samples, events: events, loopTicks: loopTicks, gain: spec.gain))
         }
+        pads = .allocate(capacity: padSamples.count)
+        for (i, x) in padSamples.enumerated() {
+            let p = UnsafeMutableBufferPointer<Float>.allocate(capacity: x.count)
+            _ = p.initialize(from: x)
+            pads.initializeElement(at: i, to: p)
+        }
     }
 
     public func deallocate() {
@@ -37,6 +46,8 @@ public struct RenderState {
             t.events.deallocate()
         }
         tracks.deallocate()
+        pads.forEach { $0.deallocate() }
+        pads.deallocate()
     }
 
     /// Heap copy for StateSwap; pair with `free`.
@@ -76,6 +87,8 @@ public struct Renderer {
     private let voices: UnsafeMutableBufferPointer<Voice>
     private let cursors: UnsafeMutableBufferPointer<Cursor>
     private var lastState: UnsafeMutableRawPointer?
+    /// Optional CLiveQueue: hits are drained at callback start and voiced at the buffer's first frame.
+    public var live: OpaquePointer?
 
     public init(slot: OpaquePointer) {
         self.slot = slot
@@ -104,12 +117,20 @@ public struct Renderer {
             lastState = raw
             seek(state)
         }
+        if let live {
+            var event: UInt64 = 0
+            while catomic_live_pop(live, &event) {
+                let pad = Int(event & 0xff)
+                if pad < state.pads.count { trigger(samples: state.pads[pad], gain: 1, at: base) }
+                catomic_live_done(live, event >> 8, base)
+            }
+        }
         var a = base
         while a < end {
             var b = end
             for t in 0..<state.tracks.count {
                 while cursors[t].next == a {
-                    trigger(state.tracks[t], at: a)
+                    trigger(samples: state.tracks[t].samples, gain: state.tracks[t].gain, at: a)
                     advance(t, state)
                 }
                 b = min(b, cursors[t].next)
@@ -152,10 +173,10 @@ public struct Renderer {
     }
 
     // ponytail: full pool drops the new note; add voice stealing if 64 ever overflows.
-    private func trigger(_ track: Track, at frame: Int64) {
-        guard track.samples.count > 0, let p = track.samples.baseAddress else { return }
+    private func trigger(samples: UnsafeMutableBufferPointer<Float>, gain: Float, at frame: Int64) {
+        guard samples.count > 0, let p = samples.baseAddress else { return }
         for i in 0..<Self.voiceCount where voices[i].end <= frame {
-            voices[i] = Voice(start: frame, end: frame + Int64(track.samples.count), samples: UnsafePointer(p), gain: track.gain)
+            voices[i] = Voice(start: frame, end: frame + Int64(samples.count), samples: UnsafePointer(p), gain: gain)
             return
         }
     }
