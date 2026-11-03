@@ -25,6 +25,8 @@ targets:
         DEVELOPMENT_TEAM: SYT2BTQDWJ
         CODE_SIGN_STYLE: Automatic
         GENERATE_INFOPLIST_FILE: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        INFOPLIST_KEY_CFBundleDisplayName: "루프 게임"
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         INFOPLIST_KEY_UISupportedInterfaceOrientations: UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
         TARGETED_DEVICE_FAMILY: "1,2"
