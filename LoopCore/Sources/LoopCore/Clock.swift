@@ -52,7 +52,9 @@ public struct HostClock {
     }
 
     /// Nearest tick heard at `hostTime`, when the anchor's sample time is the renderer position (tick 0 = frame 0)
-    /// and `latency` is the output latency, so a hit lands where the user heard it.
+    /// and `latency` is the output latency, so a hit lands where the user heard it. The one mapping for "where is the
+    /// audible output at host time T": recorded hits (`AudioHost.record`) and the heard position driving the count-in
+    /// (`AudioHost.heardTick`) both use it; a visual playhead must too, so it agrees with recorded notes.
     public func tick(hostTime: UInt64, latency: Double, bpm: Int64) -> Int64 {
         Clock.tick(frame: frame(hostTime: hostTime, latency: latency, userOffset: 0), sampleRate: sampleRate, bpm: bpm)
     }

@@ -24,6 +24,15 @@ public enum Metrics {
         }
         return Double(sum) / Double(notes.count)
     }
+    /// Mean signed (onset - nearest `grid` line) in ticks: > 0 = played late. Loop-station DEBUG readout.
+    public static func meanGridOffset(_ notes: [Note], grid: Int64 = sixteenth) -> Double {
+        guard !notes.isEmpty else { return 0 }
+        let sum = notes.reduce(Int64(0)) { acc, n in
+            let r = n.tick % grid
+            return acc + (r <= grid / 2 ? r : r - grid)
+        }
+        return Double(sum) / Double(notes.count)
+    }
     /// candidate grid error / original grid error (weak <= 0.6, strong <= 0.2 at call site).
     public static func gridErrorRatio(candidate: [Note], original: [Note]) -> Double {
         let o = gridError(original), c = gridError(candidate)

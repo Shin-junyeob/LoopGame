@@ -173,13 +173,13 @@ public enum Corrector {
     }
     static func nearestGrid(_ t: Int64, span: Int64) -> Int64 {
         let q = Metrics.sixteenth
-        return min(max(0, (t + q / 2) / q * q), span - q)
+        return (max(0, t) + q / 2) / q * q % span  // past the last 16th = the next loop's downbeat (tick 0)
     }
-    /// 16th-grid lines within ±1/8 beat (clamped into the loop).
+    /// 16th-grid lines within ±1/8 beat, wrapped into the loop like `nearestGrid`.
     static func gridOptions(_ t: Int64, span: Int64) -> [Int64] {
         let q = Metrics.sixteenth
         let lo = (t - window + q - 1) / q * q, hi = (t + window) / q * q
-        let gs = Set(stride(from: max(0, lo), through: hi, by: Int(q)).map { min($0, span - q) })
+        let gs = Set(stride(from: max(0, lo), through: hi, by: Int(q)).map { $0 % span })
         return gs.isEmpty ? [nearestGrid(t, span: span)] : gs.sorted()
     }
     static func pitchOptions(_ x: Int, at g: Int64, context: Context) -> [Int] {
