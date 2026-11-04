@@ -1,7 +1,7 @@
 import LoopCore
 import SwiftUI
 
-/// US-303 loop station: record loops over a 1-bar count-in and stack up to 8 of them in a Song (AC5, AC6, AC12).
+/// US-303 loop station: record loops (the first hit starts the take) and stack up to 8 of them in a Song (AC5, AC6, AC12).
 /// US-305: every change is saved to `songStore`; "곡 완성하기" opens the arrangement.
 struct LoopStationView: View {
     let host: AudioHost
@@ -45,6 +45,7 @@ struct LoopStationView: View {
             #if DEBUG
             if UserDefaults.standard.bool(forKey: "demoCompare") { startCompare(Self.demoTake) }
             if UserDefaults.standard.bool(forKey: "demoArrange") { arranging = true }
+            if UserDefaults.standard.bool(forKey: "demoArmed") { host.startRecording(bars: bars) }
             #endif
         }
         .onChange(of: role, apply)
@@ -194,7 +195,7 @@ struct LoopStationView: View {
             }
             .disabled(full)
             .opacity(full ? 0.4 : 1)
-            .accessibilityHint(recording ? "탭하면 녹음을 취소해요" : "한 마디 카운트 뒤에 녹음해요")
+            .accessibilityHint(recording ? "탭하면 녹음을 취소해요" : "첫 음을 치면 녹음이 시작돼요")
             #if DEBUG
             if let t = host.finishedTake {  // timing report: mean signed onset offset of the last raw take, + = late
                 let ms = { (ticks: Double) in ticks * 60_000 / (Double(host.bpm) * Double(ppq)) }
@@ -206,9 +207,9 @@ struct LoopStationView: View {
         }
     }
 
-    /// Count-in and progress are on the score (audio clock), not here.
+    /// Progress is on the score (audio clock), not here.
     private var recordTitle: String {
-        if recording { return "녹음 중 · 탭하면 취소" }
+        if recording { return host.take?.window == nil ? "첫 음을 기다리는 중 · 탭하면 취소" : "녹음 중 · 탭하면 취소" }
         return full ? "트랙이 가득 찼어요 (8개)" : "녹음 · \(role.title) \(bars)마디"
     }
 
@@ -232,13 +233,15 @@ struct LoopStationView: View {
     }
 
     #if DEBUG
-    /// `-demoCompare YES`: a jittered 2-bar melody take (off-grid, a few notes outside C major) opens the compare sheet.
+    /// `-demoCompare YES`: a jittered 2-bar melody take (off-grid, a few notes outside C major) started on beat 3
+    /// opens the compare sheet; its first note must be drawn first.
     private static var demoTake: LoopTrack {
         let pitches = [60, 63, 67, 64, 61, 67, 71, 68, 64, 69, 73, 70, 65, 70, 72, 66]
-        let jitter: [Int64] = [35, -60, 70, -40, 55, -65, 30, 60, -50, 40, -70, 50, 65, -45, 60, -30]
+        let jitter: [Int64] = [0, -60, 70, -40, 55, -65, 30, 60, -50, 40, -70, 50, 65, -45, 60, -30]
+        let w = TakeWindow(firstHit: 5 * Progression.ticksPerBar + 2 * ppq, bars: 2)
         return LoopTrack(role: .melody, timbre: "piano", bars: 2, notes: pitches.indices.map {
-            Note(tick: max(0, Int64($0) * ppq / 2 + jitter[$0]), pitch: pitches[$0])
-        })
+            Note(tick: Clock.wrap(tick: w.start + Int64($0) * ppq / 2 + jitter[$0], loopTicks: w.loopTicks), pitch: pitches[$0])
+        }.sorted { $0.tick < $1.tick }, startPhase: w.startPhase)
     }
     #endif
 }

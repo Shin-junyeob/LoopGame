@@ -22,6 +22,11 @@ public enum Clock {
         wrap(tick: max(hit, takeStart), loopTicks: loopTicks)
     }
 
+    /// Where a loop-phase `tick` is drawn: ticks from the take's start phase, so a take's first note is at 0.
+    public static func displayTick(_ tick: Int64, startPhase: Int64, loopTicks: Int64) -> Int64 {
+        wrap(tick: tick - startPhase, loopTicks: loopTicks)
+    }
+
     /// Same musical position at a new sample rate (error < 1 new-rate frame).
     public static func rescale(frame: Int64, from oldRate: Int64, to newRate: Int64) -> Int64 {
         floorDiv(frame * newRate, oldRate)
@@ -30,6 +35,28 @@ public enum Clock {
     static func floorDiv(_ a: Int64, _ b: Int64) -> Int64 {
         let (q, r) = a.quotientAndRemainder(dividingBy: b)
         return r != 0 && (r < 0) != (b < 0) ? q - 1 : q
+    }
+}
+
+/// A loop-station take started by its first hit: `start` is that hit's heard tick snapped to the nearest beat
+/// (exactly between two beats: the later one), and the take lasts `loopTicks` from there. Notes are loop-phase ticks
+/// on the absolute grid, so the take stays in phase with the other tracks; `startPhase` is where it began.
+public struct TakeWindow: Equatable, Sendable {
+    public let start: Int64, loopTicks: Int64
+    public var end: Int64 { start + loopTicks }
+    /// Also the first hit's note tick: the first hit is always stored at the take's start.
+    public var startPhase: Int64 { Clock.wrap(tick: start, loopTicks: loopTicks) }
+
+    public init(firstHit: Int64, bars: Int) {
+        start = Clock.floorDiv(firstHit + ppq / 2, ppq) * ppq
+        loopTicks = Int64(bars) * Progression.ticksPerBar
+    }
+
+    /// Loop-phase tick for a later hit, or nil outside the take. The window is shifted a 16th early so a hit just
+    /// before the end (aimed at the next loop's downbeat) is ignored and one just before the start lands on it.
+    public func tick(hit: Int64) -> Int64? {
+        guard hit >= start - ppq / 4 && hit < end - ppq / 4 else { return nil }
+        return Clock.takeTick(hit: hit, takeStart: start, loopTicks: loopTicks)
     }
 }
 
@@ -60,7 +87,7 @@ public struct HostClock {
 
     /// Nearest tick heard at `hostTime`, when the anchor's sample time is the renderer position (tick 0 = frame 0)
     /// and `latency` is the output latency, so a hit lands where the user heard it. The one mapping for "where is the
-    /// audible output at host time T": recorded hits (`AudioHost.record`) and the heard position driving the count-in
+    /// audible output at host time T": recorded hits (`AudioHost.record`) and the heard position ending a take
     /// (`AudioHost.advanceTake`) and the score's playhead (`Playhead.fraction`) all use it, so line and notes agree.
     public func tick(hostTime: UInt64, latency: Double, bpm: Int64) -> Int64 {
         Clock.tick(frame: frame(hostTime: hostTime, latency: latency, userOffset: 0), sampleRate: sampleRate, bpm: bpm)
@@ -69,8 +96,7 @@ public struct HostClock {
 
 public enum Playhead {
     /// Audible position at `hostTime` as a fraction of the loop drawn from `loopStart`: 0 = its first bar line (a take's
-    /// downbeat), 1 = its end. Negative during a take's count-in (-bar/loopTicks ..< 0); in playback it keeps counting past
-    /// 1, so floor() is the loop cycle and the remainder the phase. Same `HostClock.tick` as recorded hits.
+    /// downbeat), 1 = its end. In playback it keeps counting past 1, so floor() is the loop cycle and the remainder the phase. Same `HostClock.tick` as recorded hits.
     public static func fraction(clock: HostClock, hostTime: UInt64, latency: Double, bpm: Int64,
                                 loopStart: Int64, loopTicks: Int64) -> Double {
         Double(clock.tick(hostTime: hostTime, latency: latency, bpm: bpm) - loopStart) / Double(loopTicks)

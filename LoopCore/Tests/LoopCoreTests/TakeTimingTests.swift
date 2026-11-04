@@ -117,3 +117,61 @@ func earlyDownbeatHitLandsOnDownbeat(startBar: Int64) {
     // The last beat of the take is untouched.
     #expect(Clock.takeTick(hit: start + loop - ppq, takeStart: start, loopTicks: loop) == Clock.wrap(tick: start + loop - ppq, loopTicks: loop))
 }
+
+// MARK: First-hit start (no count-in)
+
+private let jitter30ms: Int64 = 30 * bpm * ppq / 60_000  // 24 ticks at 100 bpm
+
+@Test(arguments: [-jitter30ms, 0, jitter30ms])
+func firstHitStartsTheTakeOnTheNearestBeat(offset: Int64) {
+    let beat = 21 * ppq  // bar 5, beat 2
+    let w = TakeWindow(firstHit: beat + offset, bars: 2)
+    #expect(w.start == beat && w.end == beat + 2 * bar)
+    #expect(w.startPhase == Clock.wrap(tick: beat, loopTicks: 2 * bar))
+}
+
+@Test func firstHitExactlyBetweenBeatsTakesTheLaterBeat() {
+    #expect(TakeWindow(firstHit: 21 * ppq + ppq / 2, bars: 1).start == 22 * ppq)
+    #expect(TakeWindow(firstHit: 21 * ppq + ppq / 2 - 1, bars: 1).start == 21 * ppq)
+}
+
+@Test(arguments: [1, 2, 4, 8])
+func laterHitsStayInPhaseAndTheTakeEndsAfterItsBars(bars: Int) {
+    let start = 5 * bar + 2 * ppq  // odd bar, beat 3
+    let w = TakeWindow(firstHit: start + 10, bars: bars)
+    let loop = Int64(bars) * bar
+    #expect(w.end == start + loop)
+    // Absolute grid: a hit on any beat is stored at that beat's phase, the phase other tracks use.
+    for b in 0..<Int64(bars) * 4 {
+        #expect(w.tick(hit: start + b * ppq) == Clock.wrap(tick: start + b * ppq, loopTicks: loop))
+    }
+    #expect(w.tick(hit: start - 10) == w.startPhase)  // just early for the start: on it
+    #expect(w.tick(hit: w.end - ppq / 4 - 1) != nil)
+    #expect(w.tick(hit: w.end - ppq / 4) == nil)  // aimed at the next loop: ignored
+    #expect(w.tick(hit: start - ppq / 4 - 1) == nil)
+}
+
+@Test(arguments: [4 * bar, 5 * bar, 5 * bar + 2 * ppq])  // even bar, odd bar, beat 3
+func displayPutsTheFirstNoteAtTheStart(start: Int64) {
+    let w = TakeWindow(firstHit: start, bars: 2)
+    let notes = [w.startPhase] + (1..<8).compactMap { w.tick(hit: start + Int64($0) * ppq + 12) }
+    let shown = notes.map { Clock.displayTick($0, startPhase: w.startPhase, loopTicks: w.loopTicks) }
+    #expect(shown[0] == 0)
+    #expect(shown == shown.sorted())  // in played order, nothing wrapped to the end
+}
+
+/// A take whose first note is at its start phase keeps it first in every AI candidate (no wrap to the loop end).
+@Test(arguments: [4 * bar, 5 * bar, 5 * bar + 2 * ppq])
+func correctionKeepsTheFirstNoteFirst(start: Int64) throws {
+    let w = TakeWindow(firstHit: start - jitter20ms, bars: 2)
+    let hits = (1..<8).compactMap { b in w.tick(hit: start + Int64(b) * ppq + [-jitter20ms, 0, jitter20ms][b % 3]) }
+    let notes = ([w.startPhase] + hits).enumerated().map { Note(tick: $0.element, pitch: $0.offset % 2) }
+    let t = LoopTrack(role: .drums, timbre: "kit", bars: 2, notes: notes, startPhase: w.startPhase)
+    let options = try Corrector.suggest(for: t, key: Key(root: 0, mode: .major), progression: .cGAmF)
+    #expect(!options.isEmpty)
+    for c in options {
+        let shown = c.notes.map { Clock.displayTick($0.tick, startPhase: t.startPhase, loopTicks: t.loopTicks) }
+        #expect(shown.min() == 0, "\(shown)")
+        #expect(shown.max()! <= t.loopTicks - ppq, "\(shown)")
+    }
+}

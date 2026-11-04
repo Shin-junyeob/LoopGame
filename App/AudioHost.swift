@@ -39,10 +39,10 @@ final class AudioHost {
     private(set) var cpuStatus = "not run"
     private(set) var log: [String] = []
 
-    /// Loop-station take: 1 count-in bar from `start - bar`, then `bars` bars from `start` (absolute ticks).
+    /// Loop-station take: armed (`window == nil`, metronome running) until the first hit starts it on the nearest beat.
     struct Take: Equatable {
-        let start: Int64, bars: Int
-        var end: Int64 { start + Int64(bars) * Progression.ticksPerBar }
+        let bars: Int
+        var window: TakeWindow?
         var notes: [Note] = []
     }
     private(set) var take: Take?
@@ -316,12 +316,10 @@ final class AudioHost {
                          sampleRate: Int64(sampleRate), timebaseNumer: Int64(timebase.numer), timebaseDenom: Int64(timebase.denom))
     }
 
-    /// Count-in starts on the next bar line the renderer hasn't reached yet; the metronome plays until the take ends.
+    /// Arms a take: the metronome plays until it ends, and the first hit (`record`) starts it.
     func startRecording(bars: Int) {
-        guard take == nil, let clock = hostClock() else { return }
-        let bar = Progression.ticksPerBar
-        let rendering = clock.tick(hostTime: mach_absolute_time(), latency: 0, bpm: Int64(bpm))
-        take = Take(start: ((rendering + ppq / 4) / bar + 2) * bar, bars: bars)
+        guard take == nil else { return }
+        take = Take(bars: bars)
         swapState()
     }
 
@@ -337,24 +335,28 @@ final class AudioHost {
         swapState()
     }
 
-    /// Touch -> heard tick (outputLatency included, as in the S1 latency proxy) -> tick within the loop.
-    /// The window is shifted a 16th early so a hit just before the downbeat still counts (it lands on the downbeat).
+    /// Touch -> heard tick (outputLatency included, as in the S1 latency proxy) -> loop-phase tick (`TakeWindow`).
+    /// While armed, the hit starts the take on the nearest beat and is stored at its start.
     private func record(pad: Int, touchHost: UInt64) {
         guard let t = take, let clock = hostClock() else { return }
         let tick = clock.tick(hostTime: touchHost, latency: outputLatency, bpm: Int64(bpm))
-        guard tick >= t.start - ppq / 4 && tick < t.end - ppq / 4 else { return }
-        let loopTicks = Int64(t.bars) * Progression.ticksPerBar
-        take?.notes.append(Note(tick: Clock.takeTick(hit: tick, takeStart: t.start, loopTicks: loopTicks),
-                                pitch: role == .drums ? pad : pad + Timbres.range[role]!.lowerBound))
+        let pitch = role == .drums ? pad : pad + Timbres.range[role]!.lowerBound
+        guard let w = t.window else {
+            let w = TakeWindow(firstHit: tick, bars: t.bars)
+            take?.window = w
+            take?.notes = [Note(tick: w.startPhase, pitch: pitch)]
+            return
+        }
+        guard let phase = w.tick(hit: tick) else { return }
+        take?.notes.append(Note(tick: phase, pitch: pitch))
     }
 
     private func advanceTake() {
-        guard let t = take, let clock = hostClock() else { return }
-        guard clock.tick(hostTime: mach_absolute_time(), latency: outputLatency, bpm: Int64(bpm)) >= t.end else { return }
+        guard let t = take, let w = t.window, let clock = hostClock() else { return }
+        guard clock.tick(hostTime: mach_absolute_time(), latency: outputLatency, bpm: Int64(bpm)) >= w.end else { return }
         take = nil
-        if !t.notes.isEmpty {
-            finishedTake = LoopTrack(role: role, timbre: timbre, bars: t.bars, notes: t.notes.sorted { $0.tick < $1.tick })
-        }
+        finishedTake = LoopTrack(role: role, timbre: timbre, bars: t.bars, notes: t.notes.sorted { $0.tick < $1.tick },
+                                 startPhase: w.startPhase)
         swapState()
     }
 

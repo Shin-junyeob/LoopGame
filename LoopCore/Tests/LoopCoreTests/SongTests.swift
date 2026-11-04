@@ -102,6 +102,22 @@ func validationRejectsNoteOutsideLoop(_ tick: Int64) {
     #expect(throws: SongError.noteOutsideLoop(track: 0)) { try s.validate() }
 }
 
+@Test func startPhaseRoundTripsAndDefaultsToZero() throws {
+    var s = validSong()
+    s.tracks[1].startPhase = 5 * 480
+    let back = try JSONDecoder().decode(Song.self, from: JSONEncoder().encode(s))
+    #expect(back.tracks[1].startPhase == 5 * 480)
+    let old = #"{"id":"6F1C2A3B-0000-4000-8000-0000000000A1","role":"bass","timbre":"default","bars":2,"notes":[]}"#
+    #expect(try JSONDecoder().decode(LoopTrack.self, from: Data(old.utf8)).startPhase == 0)
+}
+
+@Test(arguments: [Int64(-1), Int64(4 * 480)])
+func validationRejectsStartPhaseOutsideLoop(_ phase: Int64) {
+    var s = validSong()
+    s.tracks[0].startPhase = phase
+    #expect(throws: SongError.startPhaseOutsideLoop(track: 0)) { try s.validate() }
+}
+
 @Test func validationRejectsSectionPointingAtMissingTrack() {
     var s = validSong()
     s.sections[0].tracks = [s.tracks[0].id, UUID()]

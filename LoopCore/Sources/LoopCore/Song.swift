@@ -1,16 +1,31 @@
 import Foundation
 
-/// One recorded loop. `notes` are ticks within the loop (0 ..< bars × ticksPerBar).
+/// One recorded loop. `notes` are loop-phase ticks (0 ..< bars × ticksPerBar) on the absolute grid; `startPhase` is the
+/// phase the take began at, which every view draws at x = 0 (`Clock.displayTick`). Playback ignores it.
 public struct LoopTrack: Codable, Equatable, Sendable {
     public var id: UUID
     public var role: SongRole
     public var timbre: String
     public var bars: Int
     public var notes: [Note]
-    public init(id: UUID = UUID(), role: SongRole, timbre: String = "default", bars: Int, notes: [Note]) {
-        self.id = id; self.role = role; self.timbre = timbre; self.bars = bars; self.notes = notes
+    public var startPhase: Int64
+    public init(id: UUID = UUID(), role: SongRole, timbre: String = "default", bars: Int, notes: [Note], startPhase: Int64 = 0) {
+        self.id = id; self.role = role; self.timbre = timbre; self.bars = bars; self.notes = notes; self.startPhase = startPhase
     }
     public var loopTicks: Int64 { Int64(bars) * Progression.ticksPerBar }
+
+    enum CodingKeys: String, CodingKey { case id, role, timbre, bars, notes, startPhase }
+
+    /// Tracks saved before `startPhase` existed (still schemaVersion 1) decode with 0.
+    public init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(UUID.self, forKey: .id)
+        role = try c.decode(SongRole.self, forKey: .role)
+        timbre = try c.decode(String.self, forKey: .timbre)
+        bars = try c.decode(Int.self, forKey: .bars)
+        notes = try c.decode([Note].self, forKey: .notes)
+        startPhase = try c.decodeIfPresent(Int64.self, forKey: .startPhase) ?? 0
+    }
 }
 
 /// A stretch of the arrangement playing `tracks` (`LoopTrack.id`s, in `Song.tracks` order) for `bars` bars.
@@ -28,6 +43,7 @@ public enum SongError: Error, Equatable {
     case bpmOutOfRange(Int)
     case invalidBars(track: Int)
     case noteOutsideLoop(track: Int)
+    case startPhaseOutsideLoop(track: Int)
     case invalidSectionTrack(section: Int)
     case invalidSectionBars(section: Int)
 }
@@ -80,6 +96,7 @@ public struct Song: Codable, Equatable, Sendable {
         for (i, t) in tracks.enumerated() {
             guard Song.allowedBars.contains(t.bars) else { throw SongError.invalidBars(track: i) }
             guard t.notes.allSatisfy({ $0.tick >= 0 && $0.tick < t.loopTicks }) else { throw SongError.noteOutsideLoop(track: i) }
+            guard t.startPhase >= 0 && t.startPhase < t.loopTicks else { throw SongError.startPhaseOutsideLoop(track: i) }
         }
         let ids = Set(tracks.map(\.id))
         let unit = tracks.map(\.bars).max() ?? 1

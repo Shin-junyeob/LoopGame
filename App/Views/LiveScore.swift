@@ -2,8 +2,8 @@ import LoopCore
 import SwiftUI
 
 /// Karaoke-style score above the loop station pads. The playhead is `AudioHost.playhead` (`HostClock.tick`, the same
-/// mapping recorded hits use) evaluated every display frame, so the line and the dots it writes agree. Left of the first
-/// bar line is a one-bar lead-in the playhead crosses during the count-in, with the beats 4·3·2·1 counted down.
+/// mapping recorded hits use) evaluated every display frame, so the line and the dots it writes agree. x = 0 is the take's
+/// start: while recording its first beat, otherwise the start phase of this role's latest track (`LoopTrack.startPhase`).
 struct LiveScore: View {
     let host: AudioHost
     let role: SongRole
@@ -19,18 +19,19 @@ struct LiveScore: View {
         }
         .background(.black.opacity(0.3), in: .rect(cornerRadius: 12))
         .clipShape(.rect(cornerRadius: 12))
-        .accessibilityHidden(true)  // the metronome counts in audibly; the record button carries the state
+        .accessibilityHidden(true)  // the record button carries the state
     }
 
     private func draw(_ ctx: inout GraphicsContext, _ size: CGSize) {
-        let take = host.take
+        let take = host.take, window = take?.window
         let bar = Progression.ticksPerBar
-        let loop = Int64(take?.bars ?? bars) * bar
+        let loop = window?.loopTicks ?? Int64(take?.bars ?? bars) * bar
         let lead = size.width * 0.16, width = size.width - lead - 6
-        let raw = host.playhead(loopStart: take?.start ?? 0, loopTicks: loop) ?? 0
-        // Recording: the take's window, playhead -bar/loop ..< 1. Playback: the current loop cycle, playhead = its phase.
-        let start = take?.start ?? Int64(raw.rounded(.down)) * loop
-        let now = take == nil ? raw - raw.rounded(.down) : raw
+        // Recording: the take's window, playhead 0 ..< 1. Idle/armed: the current loop cycle from `origin`, playhead = its phase.
+        let origin = window?.start ?? tracks.last(where: { $0.role == role })?.startPhase ?? 0
+        let raw = host.playhead(loopStart: origin, loopTicks: loop) ?? 0
+        let start = window?.start ?? origin + Int64(raw.rounded(.down)) * loop
+        let now = window == nil ? raw - raw.rounded(.down) : raw
         func x(_ t: Int64) -> CGFloat { lead + CGFloat(t) / CGFloat(loop) * width }
         func line(_ x: CGFloat, _ w: CGFloat, _ color: Color) {
             ctx.fill(Path(CGRect(x: x - w / 2, y: 0, width: w, height: size.height)), with: .color(color))
@@ -53,12 +54,12 @@ struct LiveScore: View {
             }
         }
 
-        // Grid: bar lines strong, beats lighter, 16ths faint; the lead-in shows the count-in beats.
+        // Grid on the absolute timeline (a take may start mid-bar): bar lines strong, beats lighter, 16ths faint.
         for t in stride(from: 0, through: loop, by: Int(ppq / 4)) {
-            let opacity = t % bar == 0 ? 0.5 : t % ppq == 0 ? 0.2 : 0.07
-            line(x(t), t % bar == 0 ? 1.5 : 1, .white.opacity(opacity))
+            let g = Clock.wrap(tick: start + t, loopTicks: bar)
+            let opacity = g == 0 ? 0.5 : g % ppq == 0 ? 0.2 : 0.07
+            line(x(t), g == 0 ? 1.5 : 1, .white.opacity(opacity))
         }
-        for b in 1..<4 { line(lead * CGFloat(b) / 4, 1, .white.opacity(0.1)) }
 
         // Notes in the window [start, start + loop): each loop repeats from tick 0 every `loopTicks`.
         func each(_ notes: [Note], every period: Int64, _ body: (Int64, Note) -> Void) {
@@ -85,21 +86,15 @@ struct LiveScore: View {
             each(take.notes, every: loop) { t, n in dot(t, n.pitch, dotR + 1, role.color) }
         }
 
-        // Playhead, and the count-in: beats left until the downbeat, from the same clock.
-        let lead0 = -Double(bar) / Double(loop)
-        if take != nil, now < 0 {
-            let left = -now * Double(loop)
-            if now >= lead0 {
-                line(lead * CGFloat(1 - now / lead0), 3, .red)
-                ctx.draw(Text("\(min(4, Int((left / Double(ppq)).rounded(.up))))")
-                    .font(.system(size: size.height * 0.55, weight: .heavy)).monospacedDigit()
-                    .foregroundStyle(.white.opacity(0.9)), at: CGPoint(x: lead + width / 2, y: size.height / 2))
-            } else {
-                ctx.draw(Text("준비…").font(.title2.bold()).foregroundStyle(.white.opacity(0.8)),
-                         at: CGPoint(x: lead + width / 2, y: size.height / 2))
-            }
-        } else {
-            line(x(Int64(min(now, 1) * Double(loop))), take == nil ? 2 : 3, take == nil ? .white.opacity(0.8) : .red)
+        // Playhead; armed: the prompt over the sweeping bar.
+        line(x(Int64(min(max(now, 0), 1) * Double(loop))), window == nil ? 2 : 3, window == nil ? .white.opacity(0.8) : .red)
+        if take != nil && window == nil {
+            let text = ctx.resolve(Text("첫 음을 치면 녹음이 시작돼요").font(.headline).foregroundStyle(.white))
+            let s = text.measure(in: size), c = CGPoint(x: lead + width / 2, y: size.height / 2)
+            ctx.fill(Path(roundedRect: CGRect(x: c.x - s.width / 2 - 10, y: c.y - s.height / 2 - 4,
+                                              width: s.width + 20, height: s.height + 8), cornerRadius: s.height),
+                     with: .color(.red.opacity(0.85)))
+            ctx.draw(text, at: c)
         }
     }
 }

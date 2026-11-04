@@ -163,7 +163,7 @@ struct CompareSheet: View {
         .accessibilityAddTraits(on ? .isSelected : [])
     }
 
-    /// Mini piano roll: this version's notes as dots over the take's notes as rings, on a 16th grid.
+    /// Mini piano roll: this version's notes as dots over the take's notes as rings, on a beat grid, from the take's start.
     private func roll(_ track: LoopTrack) -> some View {
         let all = versions.flatMap(\.track.notes).map(\.pitch)
         let lo = (all.min() ?? 0) - 1, hi = (all.max() ?? 0) + 1
@@ -171,12 +171,13 @@ struct CompareSheet: View {
         let color = track.role.color
         return Canvas { ctx, size in
             func point(_ n: Note) -> CGPoint {
-                CGPoint(x: 4 + Double(n.tick) / span * (size.width - 8),
-                        y: size.height * (1 - Double(n.pitch - lo) / Double(max(hi - lo, 1))))
+                let t = Clock.displayTick(n.tick, startPhase: track.startPhase, loopTicks: track.loopTicks)
+                return CGPoint(x: 4 + Double(t) / span * (size.width - 8),
+                               y: size.height * (1 - Double(n.pitch - lo) / Double(max(hi - lo, 1))))
             }
             for beat in stride(from: 0, to: track.loopTicks, by: Int(ppq)) {
                 let x = 4 + Double(beat) / span * (size.width - 8)
-                let bar = beat % Progression.ticksPerBar == 0
+                let bar = (beat + track.startPhase) % Progression.ticksPerBar == 0
                 ctx.fill(Path(CGRect(x: x, y: 0, width: 1, height: size.height)), with: .color(.white.opacity(bar ? 0.25 : 0.08)))
             }
             for n in compare.take.notes {
