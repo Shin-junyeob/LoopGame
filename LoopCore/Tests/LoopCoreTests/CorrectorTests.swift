@@ -88,3 +88,46 @@ private func n(_ t: Int64, _ p: Int) -> Note { Note(tick: t, pitch: p) }
     let stuck = LoopTrack(role: .melody, bars: 1, notes: Array(repeating: n(0, 60), count: 10))
     #expect(try Corrector.suggest(for: stuck, key: cMaj, progression: .cGAmF).isEmpty)
 }
+
+/// G9: timing-only never changes a pitch, pitch-only never moves an onset, neither -> nothing.
+@Test func correctionOptionsSplitTimingAndPitch() throws {
+    var rng = SystemRandomNumberGenerator()
+    let key = { (n: Note) in [n.tick, Int64(n.pitch)] }
+    for role in SongRole.allCases {
+        let drums = role == .drums
+        for _ in 0..<10 {
+            let notes = (0..<12).map { i in
+                n(max(0, Int64(i) * 160 + Int64.random(in: -70...70, using: &rng)), drums ? Int.random(in: 0..<6, using: &rng)
+                    : Int.random(in: Timbres.range[role] ?? 60...81, using: &rng))
+            }
+            let take = LoopTrack(role: role, bars: 1, notes: notes)
+            let ticks = Set(notes.map(\.tick)), pitches = Set(notes.map(\.pitch))
+            let model = try NGramModel.load(role: role.rawValue)
+            let timing = Corrector.Context(drums: drums, key: cMaj, progression: .cGAmF, bars: 1, options: .init(timing: true, pitch: false))
+            for c in Corrector.candidates(notes, context: timing, model: model) {
+                // every output note keeps the pitch of an input note it came from: the multiset of pitches only shrinks
+                var left = notes.map(\.pitch)
+                for p in c.notes.map(\.pitch) {
+                    #expect(left.firstIndex(of: p).map { left.remove(at: $0) } != nil)
+                }
+                #expect(c.notes.allSatisfy { $0.tick % Metrics.sixteenth == 0 })
+            }
+            let pitchOnly = Corrector.Context(drums: drums, key: cMaj, progression: .cGAmF, bars: 1, options: .init(timing: false, pitch: true))
+            for c in Corrector.candidates(notes, context: pitchOnly, model: model) {
+                #expect(c.notes.allSatisfy { ticks.contains($0.tick) })
+                if drums { #expect(c.notes.allSatisfy { pitches.contains($0.pitch) }) }
+            }
+            for c in try Corrector.suggest(for: take, key: cMaj, progression: .cGAmF, options: .init(timing: false, pitch: true)) {
+                #expect(Set(c.notes.map(key)) != Set(notes.map(key)))
+                #expect(c.notes.allSatisfy { ticks.contains($0.tick) })
+            }
+            #expect(try Corrector.suggest(for: take, key: cMaj, progression: .cGAmF, options: .init(timing: false, pitch: false)).isEmpty)
+        }
+    }
+    // timing-only also passes takes with out-of-scale notes through, pitches untouched (G3 not applied)
+    let offKey = (0..<8).map { n(Int64($0) * 240 + 40, [61, 63, 66, 68][$0 % 4]) }
+    let take = LoopTrack(role: .melody, bars: 1, notes: offKey)
+    for c in try Corrector.suggest(for: take, key: cMaj, progression: .cGAmF, options: CorrectionOptions()) {
+        #expect(c.notes.allSatisfy { [61, 63, 66, 68].contains($0.pitch) })
+    }
+}

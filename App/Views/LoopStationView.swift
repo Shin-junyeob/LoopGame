@@ -95,16 +95,9 @@ struct LoopStationView: View {
         do { try songStore.save(s) } catch { print("song save failed: \(error)") }
     }
 
-    /// AC10: the Corrector runs off main; the sheet shows the take (auditioning) with a progress row meanwhile.
+    /// AC10: the sheet runs the Corrector off main and shows the take (auditioning) with a progress row meanwhile.
     private func startCompare(_ take: LoopTrack) {
-        compare = Compare(take: take)
-        let key = song.key, progression = song.progression
-        Task {
-            let options = await Task.detached(priority: .userInitiated) {
-                (try? Corrector.suggest(for: take, key: key, progression: progression)) ?? []
-            }.value
-            if compare?.id == take.id { compare?.options = options }
-        }
+        compare = Compare(take: take, key: song.key, progression: song.progression)
     }
 
     private var next: SongRole {

@@ -1,10 +1,11 @@
 import LoopCore
 import SwiftUI
 
-/// A finished take waiting for the user's pick; `options` is nil while the Corrector runs.
+/// A finished take waiting for the user's pick, with the song context the Corrector needs.
 struct Compare: Identifiable {
     var take: LoopTrack
-    var options: [Corrector.Candidate]?
+    var key: Key
+    var progression: Progression
     var id: UUID { take.id }
 }
 
@@ -17,10 +18,17 @@ struct CompareSheet: View {
     let song: [LoopTrack]
     let keep: (LoopTrack) -> Void
     @State private var selected = 0
+    /// nil while the Corrector runs.
+    @State private var options: [Corrector.Candidate]?
+    /// G9: timing and pitch correction are separate, remembered switches; timing only by default.
+    @AppStorage("correctTiming") private var timing = true
+    @AppStorage("correctPitch") private var pitch = false
+    private var drums: Bool { compare.take.role == .drums }
+    private var correction: CorrectionOptions { .init(timing: timing, pitch: pitch && !drums) }
 
     private var versions: [(title: String, detail: String, track: LoopTrack)] {
         var out = [("내 연주", "녹음한 그대로", compare.take)]
-        var options = compare.options ?? []
+        var options = self.options ?? []
         // Options come best-F1 first; two that differ by at most one note aren't worth comparing.
         if options.count == 2 && Self.differ(options[0].notes, options[1].notes) <= 1 { options.removeLast() }
         for c in options {
@@ -49,7 +57,9 @@ struct CompareSheet: View {
             if m.pitch != n.pitch { pitch += 1 }
             if m.tick != n.tick { moved += 1 }
         }
-        var parts = ["바뀐 음 \(pitch)개", "박자 맞춤 \(moved)개"]
+        var parts: [String] = []
+        if correction.pitch { parts.append("바뀐 음 \(pitch)개") }
+        if correction.timing { parts.append("박자 맞춤 \(moved)개") }
         if take.count > notes.count { parts.append("뺀 음 \(take.count - notes.count)개") }
         return parts.joined(separator: " · ")
     }
@@ -61,19 +71,23 @@ struct CompareSheet: View {
             Text("어떤 걸로 쌓을까요?").font(.title2.bold()).frame(maxWidth: .infinity, alignment: .leading)
             Text("고르면 그 버전이 곡과 함께 반복 재생돼요").font(.subheadline).foregroundStyle(.white.opacity(0.7))
                 .frame(maxWidth: .infinity, alignment: .leading)
+            HStack(spacing: 8) {
+                toggle("박자 보정", $timing)
+                if !drums { toggle("음 보정", $pitch) }
+            }
             ScrollView {
                 VStack(spacing: 10) {
                     ForEach(versions.indices, id: \.self) { i in
                         row(i, versions[i].title, versions[i].detail, versions[i].track)
                     }
-                    if compare.options == nil {
+                    if options == nil {
                         HStack(spacing: 10) {
                             ProgressView()
                             Text("AI가 고쳐 보는 중…")
                         }
                         .frame(maxWidth: .infinity, minHeight: 56)
-                    } else if compare.options?.isEmpty == true {
-                        Text("이번엔 보정안이 없어요")
+                    } else if options?.isEmpty == true {
+                        Text(correction.timing || correction.pitch ? "이번엔 보정안이 없어요" : "보정을 하나 이상 켜 주세요")
                             .frame(maxWidth: .infinity, minHeight: 56)
                             .foregroundStyle(.white.opacity(0.7))
                     }
@@ -94,6 +108,32 @@ struct CompareSheet: View {
         .interactiveDismissDisabled()
         .onAppear(perform: audition)
         .onChange(of: selected, audition)
+        .task(id: correction) { await suggest() }
+    }
+
+    /// AC10: the Corrector runs off main; a toggle change cancels the run in flight (`task(id:)`) and starts over.
+    private func suggest() async {
+        options = nil
+        selected = 0
+        let take = compare.take, key = compare.key, progression = compare.progression, correction = correction
+        let work = Task.detached(priority: .userInitiated) {
+            (try? Corrector.suggest(for: take, key: key, progression: progression, options: correction)) ?? []
+        }
+        let result = await withTaskCancellationHandler { await work.value } onCancel: { work.cancel() }
+        guard !Task.isCancelled else { return }
+        options = result
+        audition()
+    }
+
+    private func toggle(_ title: String, _ on: Binding<Bool>) -> some View {
+        Button { on.wrappedValue.toggle() } label: {
+            Label(title, systemImage: on.wrappedValue ? "checkmark.circle.fill" : "circle")
+                .font(.headline)
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .background(on.wrappedValue ? compare.take.role.color : .white.opacity(0.08), in: .rect(cornerRadius: 12))
+                .foregroundStyle(on.wrappedValue ? .white : .white.opacity(0.8))
+        }
+        .accessibilityAddTraits(on.wrappedValue ? .isSelected : [])
     }
 
     private func audition() {
