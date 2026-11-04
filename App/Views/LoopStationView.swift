@@ -27,6 +27,8 @@ struct LoopStationView: View {
             controls.disabled(recording)
             trackList
             recordButton
+            LiveScore(host: host, role: role, bars: bars, tracks: song.tracks.filter { !muted.contains($0.id) })
+                .frame(height: sizeClass == .regular ? 200 : 96)
             PadGrid(host: host, role: role).frame(maxHeight: .infinity)
         }
         .padding()
@@ -193,18 +195,21 @@ struct LoopStationView: View {
             .disabled(full)
             .opacity(full ? 0.4 : 1)
             .accessibilityHint(recording ? "탭하면 녹음을 취소해요" : "한 마디 카운트 뒤에 녹음해요")
+            #if DEBUG
+            if let t = host.finishedTake {  // timing report: mean signed onset offset of the last raw take, + = late
+                let ms = { (ticks: Double) in ticks * 60_000 / (Double(host.bpm) * Double(ppq)) }
+                Text(String(format: "DEBUG 마지막 녹음 평균 어긋남: 16분 %+.0f ms · 박 %+.0f ms (%d음)",
+                            ms(Metrics.meanGridOffset(t.notes)), ms(Metrics.meanGridOffset(t.notes, grid: ppq)), t.notes.count))
+                    .font(.caption.monospacedDigit()).foregroundStyle(.white.opacity(0.7))
+            }
+            #endif
         }
     }
 
+    /// Count-in and progress are on the score (audio clock), not here.
     private var recordTitle: String {
-        guard let take = host.take else {
-            return full ? "트랙이 가득 찼어요 (8개)" : "녹음 · \(role.title) \(bars)마디"
-        }
-        let bar = Progression.ticksPerBar
-        let heard = host.heardTick
-        if heard < take.start - bar { return "곧 시작해요…" }
-        if heard < take.start { return "\((take.start - heard + ppq - 1) / ppq)…" }
-        return "녹음 중 \(min((heard - take.start) / bar + 1, Int64(take.bars)))/\(take.bars)마디"
+        if recording { return "녹음 중 · 탭하면 취소" }
+        return full ? "트랙이 가득 찼어요 (8개)" : "녹음 · \(role.title) \(bars)마디"
     }
 
     // MARK: Screenshot seed

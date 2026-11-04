@@ -46,8 +46,6 @@ final class AudioHost {
         var notes: [Note] = []
     }
     private(set) var take: Take?
-    /// Tick being heard now; updated only while a take runs (count-in / progress UI).
-    private(set) var heardTick: Int64 = 0
     /// Last finished take with at least one hit; the loop station appends it to its Song.
     private(set) var finishedTake: LoopTrack?
 
@@ -324,8 +322,13 @@ final class AudioHost {
         let bar = Progression.ticksPerBar
         let rendering = clock.tick(hostTime: mach_absolute_time(), latency: 0, bpm: Int64(bpm))
         take = Take(start: ((rendering + ppq / 4) / bar + 2) * bar, bars: bars)
-        heardTick = rendering
         swapState()
+    }
+
+    /// `Playhead.fraction` now, for the score's per-frame redraw; reads the anchor through the CRecord seqlock only.
+    func playhead(loopStart: Int64, loopTicks: Int64) -> Double? {
+        hostClock().map { Playhead.fraction(clock: $0, hostTime: mach_absolute_time(), latency: outputLatency,
+                                            bpm: Int64(bpm), loopStart: loopStart, loopTicks: loopTicks) }
     }
 
     func cancelRecording() {
@@ -347,8 +350,7 @@ final class AudioHost {
 
     private func advanceTake() {
         guard let t = take, let clock = hostClock() else { return }
-        heardTick = clock.tick(hostTime: mach_absolute_time(), latency: outputLatency, bpm: Int64(bpm))
-        guard heardTick >= t.end else { return }
+        guard clock.tick(hostTime: mach_absolute_time(), latency: outputLatency, bpm: Int64(bpm)) >= t.end else { return }
         take = nil
         if !t.notes.isEmpty {
             finishedTake = LoopTrack(role: role, timbre: timbre, bars: t.bars, notes: t.notes.sorted { $0.tick < $1.tick })

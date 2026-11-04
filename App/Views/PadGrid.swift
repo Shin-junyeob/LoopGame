@@ -17,7 +17,7 @@ extension SongRole {
 
 let timbreNames = ["kit": "어쿠스틱", "electronic": "전자", "bass": "플럭", "synth": "신스",
                    "piano": "피아노", "epiano": "일렉 피아노", "bell": "벨", "square": "8비트"]
-private let drumNames = ["킥", "스네어", "닫힌\n하이햇", "열린\n하이햇", "탐", "크래시"]
+let drumNames = ["킥", "스네어", "닫힌\n하이햇", "열린\n하이햇", "탐", "크래시"]
 private let solfege = ["도", "도♯", "레", "레♯", "미", "파", "파♯", "솔", "솔♯", "라", "라♯", "시"]
 private let letters = ["C", "C♯", "D", "D♯", "E", "F", "F♯", "G", "G♯", "A", "A♯", "B"]
 

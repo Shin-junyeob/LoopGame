@@ -54,8 +54,18 @@ public struct HostClock {
     /// Nearest tick heard at `hostTime`, when the anchor's sample time is the renderer position (tick 0 = frame 0)
     /// and `latency` is the output latency, so a hit lands where the user heard it. The one mapping for "where is the
     /// audible output at host time T": recorded hits (`AudioHost.record`) and the heard position driving the count-in
-    /// (`AudioHost.heardTick`) both use it; a visual playhead must too, so it agrees with recorded notes.
+    /// (`AudioHost.advanceTake`) and the score's playhead (`Playhead.fraction`) all use it, so line and notes agree.
     public func tick(hostTime: UInt64, latency: Double, bpm: Int64) -> Int64 {
         Clock.tick(frame: frame(hostTime: hostTime, latency: latency, userOffset: 0), sampleRate: sampleRate, bpm: bpm)
+    }
+}
+
+public enum Playhead {
+    /// Audible position at `hostTime` as a fraction of the loop drawn from `loopStart`: 0 = its first bar line (a take's
+    /// downbeat), 1 = its end. Negative during a take's count-in (-bar/loopTicks ..< 0); in playback it keeps counting past
+    /// 1, so floor() is the loop cycle and the remainder the phase. Same `HostClock.tick` as recorded hits.
+    public static func fraction(clock: HostClock, hostTime: UInt64, latency: Double, bpm: Int64,
+                                loopStart: Int64, loopTicks: Int64) -> Double {
+        Double(clock.tick(hostTime: hostTime, latency: latency, bpm: bpm) - loopStart) / Double(loopTicks)
     }
 }
