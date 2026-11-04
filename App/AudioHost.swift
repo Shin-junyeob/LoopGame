@@ -338,13 +338,13 @@ final class AudioHost {
     }
 
     /// Touch -> heard tick (outputLatency included, as in the S1 latency proxy) -> tick within the loop.
-    /// The window is shifted a 16th early so a hit just before the downbeat still counts (it wraps to the loop end).
+    /// The window is shifted a 16th early so a hit just before the downbeat still counts (it lands on the downbeat).
     private func record(pad: Int, touchHost: UInt64) {
         guard let t = take, let clock = hostClock() else { return }
         let tick = clock.tick(hostTime: touchHost, latency: outputLatency, bpm: Int64(bpm))
         guard tick >= t.start - ppq / 4 && tick < t.end - ppq / 4 else { return }
         let loopTicks = Int64(t.bars) * Progression.ticksPerBar
-        take?.notes.append(Note(tick: Clock.wrap(tick: tick, loopTicks: loopTicks),
+        take?.notes.append(Note(tick: Clock.takeTick(hit: tick, takeStart: t.start, loopTicks: loopTicks),
                                 pitch: role == .drums ? pad : pad + Timbres.range[role]!.lowerBound))
     }
 

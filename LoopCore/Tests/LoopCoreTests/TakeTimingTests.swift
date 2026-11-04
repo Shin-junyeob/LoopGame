@@ -103,3 +103,17 @@ private func fired(_ specs: [(samples: [Float], events: [Int64], bars: Int64, ga
     #expect(hits[6] == beats.enumerated().filter { $0.offset % 4 != 0 }.map(\.element))  // take + click on 2·3·4
     #expect(hits.keys.sorted() == [6, 7])
 }
+
+/// Regression: a hit a few ms before the take's downbeat was wrapped to the loop end
+/// (shown at the far right of the score and heard a loop late). It must land on the downbeat.
+@Test(arguments: [4, 5] as [Int64])
+func earlyDownbeatHitLandsOnDownbeat(startBar: Int64) {
+    let bar = Progression.ticksPerBar, loop = 2 * bar
+    let start = startBar * bar
+    let downbeat = Clock.wrap(tick: start, loopTicks: loop)
+    #expect(Clock.takeTick(hit: start - 10, takeStart: start, loopTicks: loop) == downbeat)
+    #expect(Clock.takeTick(hit: start - ppq / 4 + 1, takeStart: start, loopTicks: loop) == downbeat)
+    #expect(Clock.takeTick(hit: start + 30, takeStart: start, loopTicks: loop) == Clock.wrap(tick: start + 30, loopTicks: loop))
+    // The last beat of the take is untouched.
+    #expect(Clock.takeTick(hit: start + loop - ppq, takeStart: start, loopTicks: loop) == Clock.wrap(tick: start + loop - ppq, loopTicks: loop))
+}

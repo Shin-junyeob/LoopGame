@@ -15,6 +15,13 @@ public enum Clock {
         (tick % loopTicks + loopTicks) % loopTicks
     }
 
+    /// Loop-phase tick for a recorded hit. A hit just before the take's downbeat was aimed at the downbeat,
+    /// so it lands on the downbeat instead of wrapping to the loop end (where it would show and sound a loop late).
+    // ponytail: early hits lose their few ms of earliness; keep a signed offset if raw takes must stay exact.
+    public static func takeTick(hit: Int64, takeStart: Int64, loopTicks: Int64) -> Int64 {
+        wrap(tick: max(hit, takeStart), loopTicks: loopTicks)
+    }
+
     /// Same musical position at a new sample rate (error < 1 new-rate frame).
     public static func rescale(frame: Int64, from oldRate: Int64, to newRate: Int64) -> Int64 {
         floorDiv(frame * newRate, oldRate)
